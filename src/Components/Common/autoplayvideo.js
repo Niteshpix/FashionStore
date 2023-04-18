@@ -3,7 +3,8 @@ import styles from "../../styles/Home.module.css";
 
 function Autoplayvideo() {
   const videoRef = useRef(null);
-  let video = "";
+  let video =
+    "https://cdn.shopify.com/videos/c/o/v/db93ea43a8724ed6823cb95203cc01f2.mp4";
 
   useEffect(() => {
     const videoElement = videoRef.current;
@@ -25,7 +26,7 @@ function Autoplayvideo() {
           loop
           playsInline
           className={styles.bannerVideo}
-          controls
+          controls={false}
         />
       </div>
     </div>
