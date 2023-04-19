@@ -2,15 +2,20 @@ import React, { useEffect, useState } from "react";
 import styles from "../styles/product.module.css";
 import axios from "axios";
 import { Card, Col, Row } from "react-bootstrap";
+import LoadingSpinner from "@/Components/Common/loader";
 
 function Catalog() {
   const [product, setProduct] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
+    setIsLoading(true);
     axios
       .get("/api/product")
       .then((res) => {
         if (res.data.status === true) {
           setProduct(res.data.data.products);
+          setIsLoading(false);
         }
       })
       .catch((error) => {
@@ -18,7 +23,9 @@ function Catalog() {
       });
   }, []);
 
-  return (
+  return isLoading ? (
+    <LoadingSpinner />
+  ) : (
     <div className={styles.product}>
       <h2>Products</h2>
       <Row xs={1} md={2} lg={4} style={{ width: "80%", marginTop: "5px" }}>
