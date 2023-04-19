@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import styles from "../../styles/Home.module.css";
+import Banner from "./banner";
 
 function Autoplayvideo() {
   const videoRef = useRef(null);
@@ -28,7 +29,18 @@ function Autoplayvideo() {
           className={styles.bannerVideo}
           controls={false}
         />
+        <div className={styles.bannerContent}>
+          <h1>Sinuous & Sensual Cut</h1>
+          <p>Dresses rooted in modernity and ease</p>
+          <button type="submit">SHOP NOW</button>
+        </div>
       </div>
+      <Banner
+        title={"The Signature Chain Pouch"}
+        path="https://cdn.shopify.com/s/files/1/0746/4386/5884/files/product-image.webp?v=1681807200&width=750"
+        description={"Now in three versatile sizes"}
+        buttontext="SHOP THE CHAIN POUCH"
+      />
     </div>
   );
 }
