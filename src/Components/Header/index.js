@@ -3,6 +3,7 @@ import { Nav, Navbar } from "react-bootstrap";
 import styles from "../../styles/Home.module.css";
 import { BsSearch } from "react-icons/bs";
 import { HiOutlineShoppingBag } from "react-icons/hi";
+import Link from "next/link";
 
 function Header() {
   return (
@@ -11,15 +12,21 @@ function Header() {
         <span>Welcome to our store</span>
       </p>
       <Navbar className={styles.navbar}>
-        <Navbar.Brand href="/">
-          <h2>FashionStore</h2>
+        <Navbar.Brand as={Link} href="/" passHref>
+          <h2 style={{ color: "black", fontSize: "32px", fontWeight: "bold" }}>
+            FashionStore
+          </h2>
         </Navbar.Brand>
         <Nav className="me-auto">
-          <Nav.Link href="/" active>
+          <Nav.Link as={Link} href="/" passHref active>
             Home
           </Nav.Link>
-          <Nav.Link href="/catalog">Catalog</Nav.Link>
-          <Nav.Link href="#pricing">Contact</Nav.Link>
+          <Nav.Link as={Link} href="/catalog" passHref>
+            Catalog
+          </Nav.Link>
+          <Nav.Link as={Link} href="/" passHref>
+            Contact
+          </Nav.Link>
         </Nav>
         <Navbar.Toggle />
         <Navbar.Collapse className="justify-content-end">
