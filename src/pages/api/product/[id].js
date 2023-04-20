@@ -1,9 +1,9 @@
 var axios = require("axios");
-export default function getProducts(req, res) {
+export default function getSingleProducts(req, res) {
   if (req.method === "GET") {
     var config = {
       method: "get",
-      url: `https://${process.env.SHOPIFY_STORE_API_KEY}:${process.env.SHOPIFY_STORE_API_PASS_TOKEN}@${process.env.SHOPIFY_STORE_NAME}/admin/api/2022-10/products.json`,
+      url: `https://${process.env.SHOPIFY_STORE_API_KEY}:${process.env.SHOPIFY_STORE_API_PASS_TOKEN}@${process.env.SHOPIFY_STORE_NAME}/admin/api/2022-10/products/${req.query.id}.json`,
       headers: {
         "Content-Type": "application/json",
       },
@@ -24,4 +24,3 @@ export default function getProducts(req, res) {
     return res.json({ status: false, data: "Method Type invalid" });
   }
 }
-

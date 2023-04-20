@@ -2,7 +2,7 @@ import React from "react";
 import styles from "./footer.module.css";
 function Footer() {
   return (
-    <div>
+    <div className={styles.footewrap}>
       <footer className={styles.footercontainer}>
         <div className={styles.footercontent}>
           <div className={styles.footerinput}>

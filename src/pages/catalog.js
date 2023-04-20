@@ -1,12 +1,19 @@
 import React, { useEffect, useState } from "react";
 import styles from "../styles/product.module.css";
 import axios from "axios";
-import { Card, Col, Row } from "react-bootstrap";
+import { Col, Row } from "react-bootstrap";
 import LoadingSpinner from "@/Components/Common/loader";
+import { useRouter } from "next/router";
 
 function Catalog() {
   const [product, setProduct] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [hovering, setHovering] = useState(true);
+  const router = useRouter();
+
+  const handleRoutes = (id) => {
+    router.push("/product/" + id);
+  };
 
   useEffect(() => {
     setIsLoading(true);
@@ -23,38 +30,60 @@ function Catalog() {
       });
   }, []);
 
+  const sizes = ["34", "36", "38", "40", "42"];
+
   return isLoading ? (
     <LoadingSpinner />
   ) : (
     <div className={styles.product}>
       <h2>Products</h2>
-      <Row xs={1} md={2} lg={4} style={{ width: "80%", marginTop: "5px" }}>
+      <Row
+        xs={1}
+        md={4}
+        lg={4}
+        style={{ width: "100%", marginTop: "5px" }}
+        gutter={10}
+      >
         {product.map((prod) => {
+          const originalImageUrl = prod.image.src;
+          const hoverImageUrl =
+            "https://cdn.shopify.com/s/files/1/0746/3229/8790/products/jw3.webp?v=1681968349";
           return (
-            <Col key={prod.id}>
-              <Card
-                //onClick={() => handleClick(art?.sys?.id)}
-                style={{ cursor: "pointer", width: "310px" }}
-                className="h-100"
-              >
-                <Card.Img
-                  variant="top"
-                  src={prod.image.src}
-                  style={{
-                    height: "300px",
-                    width: "307px",
-                    objectFit: "cover",
-                    objectPosition: "center",
-                  }}
-                />
-                <Card.Body>
-                  <Card.Title>{prod.title}</Card.Title>
-                  {prod.variants.map((variant, i) => {
-                    return <h5 key={i}>${variant.price}</h5>;
+            <div
+              key={prod.id}
+              onMouseOver={() => setHovering(true)}
+              onMouseOut={() => setHovering(false)}
+            >
+              <Col>
+                <div
+                  className="img"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => handleRoutes(prod.id)}
+                >
+                  <img
+                    src={hovering ? hoverImageUrl : originalImageUrl}
+                    alt=""
+                    style={{ height: "640px", width: "450px" }}
+                  />
+                </div>
+              </Col>
+              {hovering ? (
+                <div className={styles.sizeinfo}>
+                  {sizes.map((size, index) => (
+                    <div key={index} className={styles.box}>
+                      {size}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className={styles.cardinfo}>
+                  <span>{prod.title} </span>
+                  {prod.variants.slice(0, 1).map((variant, i) => {
+                    return <p key={i}>₹{variant.price}</p>;
                   })}
-                </Card.Body>
-              </Card>
-            </Col>
+                </div>
+              )}
+            </div>
           );
         })}
       </Row>

@@ -1,5 +1,44 @@
 .product {
   padding: 18px 48px;
   border-bottom: 1px solid #ddd;
+}
+.cardinfo {
+  margin-top: 9px;
+  font-style: italic;
+  font-size: 16px;
+}
+.sizeinfo {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+.box {
+  width: 35px;
+  height: 35px;
+  border: 1px solid black;
+  padding: 5px;
+  margin-right: 10px;
+  text-align: center;
+}
 
+.container {
+  display: flex;
+  flex-direction: row;
+}
+
+.images {
+  flex-basis: 65%;
+}
+
+.image {
+  height: 800px;
+  width: 550px;
+}
+
+.image + .image {
+  padding-left: 20px;
+}
+
+.image + .image + .image {
+  margin-top: 15px;
 }

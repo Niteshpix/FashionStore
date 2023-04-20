@@ -1,7 +1,6 @@
 import Autoplayvideo from "@/Components/Common/autoplayvideo";
 import Banner from "@/Components/Common/banner";
 import FullSizeBanner from "@/Components/Common/fullsizebanner";
-import Footer from "@/Components/footer";
 
 function HomePage() {
   return (
@@ -16,7 +15,6 @@ function HomePage() {
         }
         buttontext="Shop Now"
       />
-      <Footer />
     </div>
   );
 }
