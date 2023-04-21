@@ -1,12 +1,20 @@
+import { AppContext } from "@/Components/AppContext";
+import Slider from "@/Components/Common/slider";
 import axios from "axios";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import { toast, ToastContainer } from "react-toastify";
 
 function Singleproduct() {
   const router = useRouter();
   let { id } = router.query;
   const [isLoading, setIsLoading] = useState(false);
   const [singleProduct, setSingleProduct] = useState();
+  let images = singleProduct?.images;
+  let options = singleProduct?.options;
+  const sizes = options?.find((item) => item?.name === "Size");
+  const [selectedSize, setSelectedSize] = useState("");
+  const { cartItems, setCartItems } = useContext(AppContext);
 
   useEffect(() => {
     setIsLoading(true);
@@ -29,62 +37,91 @@ function Singleproduct() {
     }
   }
 
-  //console.log(singleProduct);
+  const handleSizeChange = (event) => {
+    setSelectedSize(event.target.value);
+  };
 
-  const images = [
-    {
-      src: "https://cdn.shopify.com/s/files/1/0107/7110/3802/products/VictoriaBeckham_RuchedBackMidiDressInLargeShellsPrint_LARGESHELLSPRINT_1223WDR004762A_2700_4050_247_WHITE_LR_HR_Front_Model1_JPG_1100x.jpg?v=1675687366",
-      alt: "image1",
-    },
-    {
-      src: "https://cdn.shopify.com/s/files/1/0107/7110/3802/products/VictoriaBeckham_RuchedBackMidiDressInLargeShellsPrint_LARGESHELLSPRINT_1223WDR004762A_2700_4050_247_WHITE_LR_HR_Front_Model1_JPG_1100x.jpg?v=1675687366",
-      alt: "image2",
-    },
-    {
-      src: "https://cdn.shopify.com/s/files/1/0107/7110/3802/products/VictoriaBeckham_RuchedBackMidiDressInLargeShellsPrint_LARGESHELLSPRINT_1223WDR004762A_2700_4050_247_WHITE_LR_HR_Front_Model1_JPG_1100x.jpg?v=1675687366",
-      alt: "image3",
-    },
-    {
-      src: "https://cdn.shopify.com/s/files/1/0107/7110/3802/products/VictoriaBeckham_RuchedBackMidiDressInLargeShellsPrint_LARGESHELLSPRINT_1223WDR004762A_2700_4050_247_WHITE_LR_HR_Front_Model1_JPG_1100x.jpg?v=1675687366",
-      alt: "image4",
-    },
-  ];
+  const handleAddToBag = () => {
+    if (selectedSize) {
+      const newItem = {
+        product: singleProduct,
+        selectedsize: selectedSize,
+      };
+      const updatedCartItems = [...cartItems, newItem];
+      setCartItems(updatedCartItems);
+      setSelectedSize("");
+
+      axios
+        .post("/api/product/addtocart")
+        .then((res) => {
+          if (res.data.status === true) {
+            console.log(res, "res");
+
+            toast.success("Item added to bag", {
+              position: toast.POSITION.TOP_CENTER,
+            });
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+  };
 
   return (
     <div className="wraper">
+      <ToastContainer />
       <div className="row">
-        <div className="col-9">
+        <div className="col-sm-7">
           <div className="row">
-            {images.map((image, index) => {
-              if (index < 2) {
-                return (
-                  <img
-                    key={index}
-                    style={{ height: "750px", width: "600px" }}
-                    src={image.src}
-                    alt={image.alt}
-                  />
-                );
-              } else {
-                return (
-                  <div key={index} className="row">
-                    <img
-                      style={{
-                        height: "750px",
-                        width: "600px",
-                        marginTop: "18px",
-                      }}
-                      src={image.src}
-                      alt={image.alt}
-                    />
-                  </div>
-                );
-              }
-            })}
+            <Slider images={images} />
           </div>
         </div>
-        <div className="col-3">
-          <p>Some text goes here</p>
+        <div className="col-sm-5">
+          <div className="text-container">
+            <h3>{singleProduct?.title}</h3>
+            {singleProduct?.variants.slice(0, 1).map((variant, i) => {
+              return <p key={i}>₹{variant?.price}</p>;
+            })}
+            <div className="seprator" />
+            <div className="row mt-4">
+              <div className="col">
+                <h6>Uk size</h6>
+                <div className={"sizeinfo"}>
+                  {sizes &&
+                    sizes.values.map((size, index) => (
+                      <label
+                        key={index}
+                        className={`box ${
+                          selectedSize === size ? "selected" : ""
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="size"
+                          value={size}
+                          checked={selectedSize === size}
+                          onChange={handleSizeChange}
+                        />
+                        {size}
+                      </label>
+                    ))}
+                  <p>Limited Availability</p>
+                </div>
+              </div>
+              <div className="col" style={{ textAlign: "end" }}>
+                <h6>Size & Fit Guide</h6>
+              </div>
+              <button
+                className={"bannerbutton1"}
+                style={{ marginTop: "30px" }}
+                disabled={!selectedSize}
+                onClick={handleAddToBag}
+              >
+                {selectedSize ? "ADD TO BAG" : "SELECT SIZE"}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

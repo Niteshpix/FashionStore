@@ -1,11 +1,42 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Nav, Navbar } from "react-bootstrap";
 import styles from "../../styles/Home.module.css";
 import { BsSearch } from "react-icons/bs";
 import { HiOutlineShoppingBag } from "react-icons/hi";
 import Link from "next/link";
+import { AppContext } from "../AppContext";
+import { useRouter } from "next/router";
 
 function Header() {
+  const { cartItems } = useContext(AppContext);
+  const [sliderOpen, setSliderOpen] = useState(false);
+  const router = useRouter();
+
+  function toggleSlider() {
+    setSliderOpen(!sliderOpen);
+  }
+  function closeSlider() {
+    setSliderOpen(false);
+  }
+
+  const handleRoute = () => {
+    router.push("/checkout");
+    setSliderOpen(false);
+  };
+
+  useEffect(() => {
+    const slider = document.getElementById("slider");
+    if (sliderOpen) {
+      slider.style.width = "23%";
+      slider.style.right = "0";
+    } else {
+      slider.style.width = "0%";
+      slider.style.right = "-30%";
+    }
+  }, [sliderOpen]);
+
+  //console.log(cartItems);
+
   return (
     <div>
       <p className={styles.announcementbar}>
@@ -33,7 +64,83 @@ function Header() {
           <BsSearch className={styles.searchIcon} />
           <HiOutlineShoppingBag
             className={`${styles.searchIcon} ${styles.searchIconWithMargin}`}
+            onClick={() => toggleSlider()}
           />
+          <span>{cartItems.length >= "1" ? cartItems.length : ""}</span>
+          <div id="slider">
+            <button className="crossbtn" onClick={closeSlider}>
+              X
+            </button>
+            <div className="bagdetails">
+              <h5>Your bag</h5>
+              {cartItems.length === 0 ? (
+                <div style={{ textAlign: "center", marginTop: "52%" }}>
+                  <p>Your bag is empty</p>
+                  <Nav.Link as={Link} href="/catalog" passHref>
+                    Continue shopping
+                  </Nav.Link>
+                </div>
+              ) : (
+                cartItems.map((items, i) => {
+                  return (
+                    <div className="row mt-4" key={i}>
+                      <div className="col-3">
+                        <img
+                          src={items.product.image.src}
+                          alt="image"
+                          style={{ height: "150px", width: "100px" }}
+                        />
+                      </div>
+                      <div className="col-9">
+                        <span>{items.product.title}</span>
+                        <p>Selected size: {items.selectedsize}</p>
+                        {items.product.variants
+                          .slice(0, 1)
+                          .map((variant, i) => {
+                            return <p key={i}>₹{variant.price}</p>;
+                          })}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+              <div
+                style={{
+                  borderBottom: "1px solid black",
+                  borderTop: "1px solid black",
+                  textAlign: "center",
+                  fontStyle: "italic",
+                  padding: "8px",
+                  marginTop: "60vh",
+                }}
+              >
+                Your order qualifies for free shipping!
+              </div>
+
+              {cartItems.length !== 0 ? (
+                <div
+                  style={{ display: "flex", justifyContent: "space-between" }}
+                >
+                  <span>Subtotal</span>
+                  <p>{"₹116700.00"}</p>
+                </div>
+              ) : (
+                ""
+              )}
+
+              {cartItems.length !== 0 ? (
+                <button
+                  className={"checkoutbtn"}
+                  type="submit"
+                  onClick={() => handleRoute()}
+                >
+                  CHECK OUT
+                </button>
+              ) : (
+                ""
+              )}
+            </div>
+          </div>
         </Navbar.Collapse>
       </Navbar>
     </div>

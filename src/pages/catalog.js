@@ -8,7 +8,7 @@ import { useRouter } from "next/router";
 function Catalog() {
   const [product, setProduct] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [hovering, setHovering] = useState(true);
+  const [hovering, setHovering] = useState(false);
   const router = useRouter();
 
   const handleRoutes = (id) => {
@@ -30,8 +30,6 @@ function Catalog() {
       });
   }, []);
 
-  const sizes = ["34", "36", "38", "40", "42"];
-
   return isLoading ? (
     <LoadingSpinner />
   ) : (
@@ -45,6 +43,9 @@ function Catalog() {
         gutter={10}
       >
         {product.map((prod) => {
+          let options = prod?.options;
+          const sizes = options.find((item) => item.name === "Size");
+
           const originalImageUrl = prod.image.src;
           const hoverImageUrl =
             "https://cdn.shopify.com/s/files/1/0746/3229/8790/products/jw3.webp?v=1681968349";
@@ -69,11 +70,12 @@ function Catalog() {
               </Col>
               {hovering ? (
                 <div className={styles.sizeinfo}>
-                  {sizes.map((size, index) => (
-                    <div key={index} className={styles.box}>
-                      {size}
-                    </div>
-                  ))}
+                  {sizes &&
+                    sizes.values.map((size, index) => (
+                      <div key={index} className={styles.box}>
+                        {size}
+                      </div>
+                    ))}
                 </div>
               ) : (
                 <div className={styles.cardinfo}>

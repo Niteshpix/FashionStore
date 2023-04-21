@@ -1,3 +1,115 @@
 .wraper {
   padding: 18px 48px;
 }
+.slider-container {
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  height: 100%; /* adjust as needed */
+}
+
+.slider {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.slider .row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.slider img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.text-container {
+  position: sticky;
+  top: 10px;
+  font-style: italic;
+}
+.seprator {
+  border-bottom: 1px solid #ddd;
+  padding-top: 10px;
+}
+
+.box {
+  display: inline-block;
+  border: 1px solid gray;
+  padding: 5px 10px;
+  margin: 5px;
+  cursor: pointer;
+}
+
+.box.selected {
+  background-color: black;
+  color: white;
+}
+
+.box input[type="radio"] {
+  display: none;
+}
+
+.box input[type="radio"]:checked + .box {
+  background-color: lightblue;
+}
+
+.bannerbutton1 {
+  background-color: black;
+  border: none;
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  font-size: 16px;
+  cursor: no-drop;
+}
+
+#slider {
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  height: 100vh;
+  position: fixed; /* fixed position to overlap on top of other content */
+  top: 0;
+  right: 0;
+  transition: all 0.5s ease-out;
+  width: 0%; /* start with 0 width */
+  z-index: 999; /* set a high z-index to make sure it overlaps on top */
+}
+#overlay {
+  background-color: rgba(0, 0, 0, 0.5);
+  height: 100%;
+  left: 0;
+  position: fixed;
+  top: 0;
+  transition: opacity 0.3s ease-out;
+  width: 100%;
+  z-index: 998;
+}
+
+.crossbtn {
+  position: absolute;
+  right: 10px;
+  font-size: 20px;
+  border: none;
+  background-color: transparent;
+  color: #555;
+  cursor: pointer;
+}
+.bagdetails {
+  padding: 35px 20px;
+}
+
+.checkoutbtn {
+  background-color: black;
+  border: none;
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  font-size: 16px;
+  cursor: no-drop;
+  width: 100%;
+}

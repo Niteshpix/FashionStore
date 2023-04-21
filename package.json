@@ -22,6 +22,9 @@
     "react-bootstrap": "^2.7.4",
     "react-dom": "18.2.0",
     "react-icons": "^4.8.0",
+    "react-toastify": "^9.1.2",
+    "shopify-api": "^0.2.3",
+    "shopify-api-node": "^3.12.3",
     "shopify-buy": "^2.19.0"
   },
   "devDependencies": {
