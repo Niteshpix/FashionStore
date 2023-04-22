@@ -4,13 +4,14 @@ import styles from "../../styles/Home.module.css";
 import { BsSearch } from "react-icons/bs";
 import { HiOutlineShoppingBag } from "react-icons/hi";
 import Link from "next/link";
-import { AppContext } from "../AppContext";
+import { CartContext } from "../AppContext";
 import { useRouter } from "next/router";
 
 function Header() {
-  const { cartItems } = useContext(AppContext);
+  const { cartItems, removeItem } = useContext(CartContext);
   const [sliderOpen, setSliderOpen] = useState(false);
   const router = useRouter();
+  const [qty, setQty] = useState(1);
 
   function toggleSlider() {
     setSliderOpen(!sliderOpen);
@@ -35,7 +36,9 @@ function Header() {
     }
   }, [sliderOpen]);
 
-  //console.log(cartItems);
+  const handleQtyChange = (qty) => {
+    setQty(Number(qty));
+  };
 
   return (
     <div>
@@ -99,6 +102,29 @@ function Header() {
                           .map((variant, i) => {
                             return <p key={i}>₹{variant.price}</p>;
                           })}
+                        <div>
+                          <button
+                            disabled={qty === 1}
+                            onClick={() => setQty(qty - 1)}
+                          >
+                            -
+                          </button>
+                          <span>{qty}</span>
+                          <button onClick={() => setQty(qty + 1)}>+</button>
+                          <input
+                            id="qty"
+                            type="hidden"
+                            min="1"
+                            value={qty}
+                            onChange={() => handleQtyChange(items.quantity)}
+                          />
+                          <button
+                            className="crossbtn"
+                            onClick={() => removeItem(items.id)}
+                          >
+                            X
+                          </button>
+                        </div>
                       </div>
                     </div>
                   );
@@ -111,7 +137,7 @@ function Header() {
                   textAlign: "center",
                   fontStyle: "italic",
                   padding: "8px",
-                  marginTop: "60vh",
+                  marginTop: "50vh",
                 }}
               >
                 Your order qualifies for free shipping!

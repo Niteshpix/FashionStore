@@ -1,4 +1,4 @@
-import { AppContext } from "@/Components/AppContext";
+import { CartContext } from "@/Components/AppContext";
 import Slider from "@/Components/Common/slider";
 import axios from "axios";
 import { useRouter } from "next/router";
@@ -14,7 +14,7 @@ function Singleproduct() {
   let options = singleProduct?.options;
   const sizes = options?.find((item) => item?.name === "Size");
   const [selectedSize, setSelectedSize] = useState("");
-  const { cartItems, setCartItems } = useContext(AppContext);
+  const { addItem } = useContext(CartContext);
 
   useEffect(() => {
     setIsLoading(true);
@@ -41,30 +41,13 @@ function Singleproduct() {
     setSelectedSize(event.target.value);
   };
 
-  const handleAddToBag = () => {
+  const handleAddToBag = async () => {
     if (selectedSize) {
       const newItem = {
         product: singleProduct,
         selectedsize: selectedSize,
       };
-      const updatedCartItems = [...cartItems, newItem];
-      setCartItems(updatedCartItems);
-      setSelectedSize("");
-
-      axios
-        .post("/api/product/addtocart")
-        .then((res) => {
-          if (res.data.status === true) {
-            console.log(res, "res");
-
-            toast.success("Item added to bag", {
-              position: toast.POSITION.TOP_CENTER,
-            });
-          }
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+      addItem(newItem);
     }
   };
 
