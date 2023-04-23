@@ -15,14 +15,26 @@ export const CartProvider = ({ children }) => {
   const addItem = (item) => {
     const existingItemIndex = cartItems.findIndex(
       (cartItem) =>
-        cartItem.product.id === item.product.id && cartItem.selectedsize === item.selectedsize
+        cartItem.product.id === item.product.id &&
+        cartItem.selectedsize === item.selectedsize
     );
-  
+
     if (existingItemIndex >= 0) {
       const updatedCartItems = [...cartItems];
       updatedCartItems[existingItemIndex].quantity++;
       setCartItems(updatedCartItems);
       localStorage.setItem("cartItems", JSON.stringify(updatedCartItems));
+      const response = fetch("/api/product/addtocart", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          items: [{ id: "8251519533350", quantity: 1 }],
+        }),
+      });
+
+      console.log(response, "context");
     } else {
       const newCartItem = { ...item, quantity: 1 };
       setCartItems([...cartItems, newCartItem]);
@@ -32,8 +44,6 @@ export const CartProvider = ({ children }) => {
       );
     }
   };
-  
-  
 
   const removeItem = (index) => {
     const newItems = [...cartItems];

@@ -11,7 +11,7 @@ function Header() {
   const { cartItems, removeItem } = useContext(CartContext);
   const [sliderOpen, setSliderOpen] = useState(false);
   const router = useRouter();
-  const [qty, setQty] = useState(1);
+  const [quantity, setQuantity] = useState(1);
 
   function toggleSlider() {
     setSliderOpen(!sliderOpen);
@@ -36,10 +36,13 @@ function Header() {
     }
   }, [sliderOpen]);
 
-  const handleQtyChange = (qty) => {
-    setQty(Number(qty));
+  const handleIncrease = () => {
+    setQuantity(quantity + 1);
   };
 
+  const handleDecrease = () => {
+    setQuantity(quantity - 1);
+  };
   return (
     <div>
       <p className={styles.announcementbar}>
@@ -58,7 +61,7 @@ function Header() {
           <Nav.Link as={Link} href="/catalog" passHref>
             Catalog
           </Nav.Link>
-          <Nav.Link as={Link} href="/" passHref>
+          <Nav.Link as={Link} href="/contact" passHref>
             Contact
           </Nav.Link>
         </Nav>
@@ -104,20 +107,14 @@ function Header() {
                           })}
                         <div>
                           <button
-                            disabled={qty === 1}
-                            onClick={() => setQty(qty - 1)}
+                            disabled={quantity === 1}
+                            onClick={() => handleDecrease()}
                           >
                             -
                           </button>
-                          <span>{qty}</span>
-                          <button onClick={() => setQty(qty + 1)}>+</button>
-                          <input
-                            id="qty"
-                            type="hidden"
-                            min="1"
-                            value={qty}
-                            onChange={() => handleQtyChange(items.quantity)}
-                          />
+                          <span>{quantity}</span>
+                          <button onClick={() => handleIncrease()}>+</button>
+
                           <button
                             className="crossbtn"
                             onClick={() => removeItem(items.id)}
