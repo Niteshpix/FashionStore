@@ -48,6 +48,28 @@ function Singleproduct() {
         selectedsize: selectedSize,
       };
       addItem(newItem);
+      const variants = [
+        { variantId: 44879913025830, quantity: 2 },
+        { variantId: 44885640806694, quantity: 3 },
+      ];
+      const result = await fetch("/api/addtocart", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          variants,
+        }),
+      });
+
+      const data = await result.json();
+      console.log(result);
+
+      if (data.success) {
+        console.log("Item added to cart successfully");
+      } else {
+        console.error("Failed to add item to cart");
+      }
     }
   };
 
@@ -103,6 +125,22 @@ function Singleproduct() {
               >
                 {selectedSize ? "ADD TO BAG" : "SELECT SIZE"}
               </button>
+
+              <div
+                dangerouslySetInnerHTML={{ __html: singleProduct?.body_html }}
+              />
+              <div
+                style={{
+                  borderBottom: "1px solid black",
+                  borderTop: "1px solid black",
+                  textAlign: "left",
+                  fontStyle: "italic",
+                  padding: "8px",
+                  cursor: "pointer",
+                }}
+              >
+                Delivery & Returns
+              </div>
             </div>
           </div>
         </div>

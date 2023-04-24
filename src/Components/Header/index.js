@@ -6,12 +6,26 @@ import { HiOutlineShoppingBag } from "react-icons/hi";
 import Link from "next/link";
 import { CartContext } from "../AppContext";
 import { useRouter } from "next/router";
+import formatPrice from "@/config/utils";
 
 function Header() {
-  const { cartItems, removeItem } = useContext(CartContext);
+  const { cartItems, removeItem, setCartItems } = useContext(CartContext);
   const [sliderOpen, setSliderOpen] = useState(false);
   const router = useRouter();
-  const [quantity, setQuantity] = useState(1);
+  const [subTotalPrice, setSubTotalPrice] = useState(0);
+
+  useEffect(() => {
+    const totalPrice = cartItems.reduce((acc, item) => {
+      const price = item.product.variants[0].price;
+      return acc + price * item.quantity;
+    }, 0);
+    setSubTotalPrice(totalPrice);
+  }, [cartItems]);
+
+  const totalQuantity = cartItems.reduce(
+    (total, item) => total + item.quantity,
+    0
+  );
 
   function toggleSlider() {
     setSliderOpen(!sliderOpen);
@@ -20,8 +34,25 @@ function Header() {
     setSliderOpen(false);
   }
 
-  const handleRoute = () => {
-    router.push("/checkout");
+  const handleRoute = async () => {
+    // router.push({
+    //   pathname: "/checkout",
+    // });
+
+    const id = 44879913025830; // replace with the actual variant ID of your product
+    const quantity = 1; // replace with the actual quantity of your product
+
+    fetch("/api/checkout", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id, quantity }),
+    })
+      .then((response) => response.json())
+      .then((data) => console.log(data))
+      .catch((error) => console.error(error));
+
     setSliderOpen(false);
   };
 
@@ -36,13 +67,26 @@ function Header() {
     }
   }, [sliderOpen]);
 
-  const handleIncrease = () => {
-    setQuantity(quantity + 1);
+  const handleDecrement = (index) => {
+    const updatedCartItems = cartItems.map((item, i) => {
+      if (i === index) {
+        return { ...item, quantity: item.quantity - 1 };
+      }
+      return item;
+    });
+    setCartItems(updatedCartItems);
   };
 
-  const handleDecrease = () => {
-    setQuantity(quantity - 1);
+  const handleIncrement = (index) => {
+    const updatedCartItems = cartItems.map((item, i) => {
+      if (i === index) {
+        return { ...item, quantity: item.quantity + 1 };
+      }
+      return item;
+    });
+    setCartItems(updatedCartItems);
   };
+
   return (
     <div>
       <p className={styles.announcementbar}>
@@ -72,7 +116,7 @@ function Header() {
             className={`${styles.searchIcon} ${styles.searchIconWithMargin}`}
             onClick={() => toggleSlider()}
           />
-          <span>{cartItems.length >= "1" ? cartItems.length : ""}</span>
+          <span>{cartItems.length >= "1" ? totalQuantity : ""}</span>
           <div id="slider">
             <button className="crossbtn" onClick={closeSlider}>
               X
@@ -103,17 +147,18 @@ function Header() {
                         {items.product.variants
                           .slice(0, 1)
                           .map((variant, i) => {
-                            return <p key={i}>₹{variant.price}</p>;
+                            return <p key={i}>{formatPrice(variant.price)}</p>;
                           })}
+
                         <div>
                           <button
-                            disabled={quantity === 1}
-                            onClick={() => handleDecrease()}
+                            disabled={items.quantity === 1}
+                            onClick={() => handleDecrement(i)}
                           >
                             -
                           </button>
-                          <span>{quantity}</span>
-                          <button onClick={() => handleIncrease()}>+</button>
+                          <span>{items.quantity}</span>
+                          <button onClick={() => handleIncrement(i)}>+</button>
 
                           <button
                             className="crossbtn"
@@ -134,7 +179,7 @@ function Header() {
                   textAlign: "center",
                   fontStyle: "italic",
                   padding: "8px",
-                  marginTop: "50vh",
+                  marginTop: "10vh",
                 }}
               >
                 Your order qualifies for free shipping!
@@ -145,7 +190,7 @@ function Header() {
                   style={{ display: "flex", justifyContent: "space-between" }}
                 >
                   <span>Subtotal</span>
-                  <p>{"₹116700.00"}</p>
+                  <p>{formatPrice(subTotalPrice)}</p>
                 </div>
               ) : (
                 ""
