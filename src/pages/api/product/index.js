@@ -8,6 +8,8 @@ export default function getProducts(req, res) {
         "Content-Type": "application/json",
       },
     };
+
+    console.log(config)
     axios(config)
       .then(function (response) {
         return res.json({ status: true, data: response.data });
@@ -24,4 +26,3 @@ export default function getProducts(req, res) {
     return res.json({ status: false, data: "Method Type invalid" });
   }
 }
-

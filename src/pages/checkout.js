@@ -1,12 +1,25 @@
+import { CartContext } from "@/Components/AppContext";
 import LoadingSpinner from "@/Components/Common/loader";
-import React, { useEffect, useState } from "react";
+import formatPrice from "@/config/utils";
+import React, { useContext, useEffect, useState } from "react";
+import { Table } from "react-bootstrap";
 
 function Checkout() {
   const [isLoading, setIsLoading] = useState(false);
+  const { cartItems } = useContext(CartContext);
+  const [subTotalPrice, setSubTotalPrice] = useState(0);
+
+  useEffect(() => {
+    const totalPrice = cartItems.reduce((acc, item) => {
+      const price = item.product.variants[0].price;
+      return acc + price * item.quantity;
+    }, 0);
+    setSubTotalPrice(totalPrice);
+  }, [cartItems]);
 
   useEffect(() => {
     setIsLoading(true);
-    setTimeout(() => {
+    setTimeout(async () => {
       setIsLoading(false);
     }, 2000);
   }, []);
@@ -18,12 +31,61 @@ function Checkout() {
       {isLoading ? (
         <LoadingSpinner />
       ) : (
-        <iframe
-          src="https://www.example.com"
-          title="Example Website"
-          width="100%"
-          height="500px"
-        ></iframe>
+        <div>
+          <Table striped bordered hover>
+            <thead>
+              <tr>
+                <th>Order Summary</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {cartItems.map((item) => (
+                <tr key={item.id}>
+                  <td>
+                    <div className="row">
+                      <div className="col-3">
+                        <img
+                          src={item.product.image.src}
+                          alt="image"
+                          style={{ height: "150px", width: "100px" }}
+                        />
+                      </div>
+                      <div className="col-6">
+                        <p>{item.product.title}</p>
+                        <p>Size: {item.selectedsize}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td>{item.quantity}</td>
+
+                  {item.product.variants.slice(0, 1).map((variant, i) => {
+                    //console.log(variant.id)
+                    return (
+                      <React.Fragment key={i}>
+                        <td>{formatPrice(variant.price)}</td>
+                        <td>{formatPrice(variant.price * item.quantity)}</td>
+                      </React.Fragment>
+                    );
+                  })}
+                </tr>
+              ))}
+
+              <tr>
+                <td colSpan="3">Items Total:</td>
+                <td>{formatPrice(subTotalPrice)}</td>
+              </tr>
+            </tbody>
+          </Table>
+          <iframe
+            src=""
+            title="fashionstroe"
+            width="100%"
+            height="500px"
+          ></iframe>
+        </div>
       )}
     </div>
   );

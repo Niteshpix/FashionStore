@@ -24,17 +24,6 @@ export const CartProvider = ({ children }) => {
       updatedCartItems[existingItemIndex].quantity++;
       setCartItems(updatedCartItems);
       localStorage.setItem("cartItems", JSON.stringify(updatedCartItems));
-      const response = fetch("/api/product/addtocart", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          items: [{ id: "8251519533350", quantity: 1 }],
-        }),
-      });
-
-      console.log(response, "context");
     } else {
       const newCartItem = { ...item, quantity: 1 };
       setCartItems([...cartItems, newCartItem]);
@@ -53,7 +42,9 @@ export const CartProvider = ({ children }) => {
   };
 
   return (
-    <CartContext.Provider value={{ cartItems, addItem, removeItem }}>
+    <CartContext.Provider
+      value={{ cartItems, addItem, removeItem, setCartItems }}
+    >
       {children}
     </CartContext.Provider>
   );
