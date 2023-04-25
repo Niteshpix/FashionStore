@@ -13,6 +13,7 @@ function Header() {
   const [sliderOpen, setSliderOpen] = useState(false);
   const router = useRouter();
   const [subTotalPrice, setSubTotalPrice] = useState(0);
+  let url = cartItems[0]?.url;
 
   useEffect(() => {
     const totalPrice = cartItems.reduce((acc, item) => {
@@ -35,24 +36,9 @@ function Header() {
   }
 
   const handleRoute = async () => {
-    // router.push({
-    //   pathname: "/checkout",
-    // });
-
-    const id = 44879913025830; // replace with the actual variant ID of your product
-    const quantity = 1; // replace with the actual quantity of your product
-
-    fetch("/api/checkout", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ id, quantity }),
-    })
-      .then((response) => response.json())
-      .then((data) => console.log(data))
-      .catch((error) => console.error(error));
-
+    router.push({
+      pathname: url,
+    });
     setSliderOpen(false);
   };
 

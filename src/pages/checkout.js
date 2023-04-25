@@ -1,6 +1,7 @@
 import { CartContext } from "@/Components/AppContext";
 import LoadingSpinner from "@/Components/Common/loader";
 import formatPrice from "@/config/utils";
+import Head from "next/head";
 import React, { useContext, useEffect, useState } from "react";
 import { Table } from "react-bootstrap";
 
@@ -8,7 +9,7 @@ function Checkout() {
   const [isLoading, setIsLoading] = useState(false);
   const { cartItems } = useContext(CartContext);
   const [subTotalPrice, setSubTotalPrice] = useState(0);
-
+  let url = cartItems[0]?.url;
   useEffect(() => {
     const totalPrice = cartItems.reduce((acc, item) => {
       const price = item.product.variants[0].price;
@@ -42,8 +43,8 @@ function Checkout() {
               </tr>
             </thead>
             <tbody>
-              {cartItems.map((item) => (
-                <tr key={item.id}>
+              {cartItems.map((item, i) => (
+                <tr key={i}>
                   <td>
                     <div className="row">
                       <div className="col-3">
@@ -62,7 +63,6 @@ function Checkout() {
                   <td>{item.quantity}</td>
 
                   {item.product.variants.slice(0, 1).map((variant, i) => {
-                    //console.log(variant.id)
                     return (
                       <React.Fragment key={i}>
                         <td>{formatPrice(variant.price)}</td>
@@ -80,7 +80,7 @@ function Checkout() {
             </tbody>
           </Table>
           <iframe
-            src=""
+            src={url}
             title="fashionstroe"
             width="100%"
             height="500px"

@@ -15,6 +15,7 @@ function Singleproduct() {
   const sizes = options?.find((item) => item?.name === "Size");
   const [selectedSize, setSelectedSize] = useState("");
   const { addItem } = useContext(CartContext);
+  const [url, setUrl] = useState();
 
   useEffect(() => {
     setIsLoading(true);
@@ -43,32 +44,34 @@ function Singleproduct() {
 
   const handleAddToBag = async () => {
     if (selectedSize) {
-      const newItem = {
-        product: singleProduct,
-        selectedsize: selectedSize,
-      };
-      addItem(newItem);
       const variants = [
         { variantId: 44879913025830, quantity: 2 },
         { variantId: 44885640806694, quantity: 3 },
       ];
-      const result = await fetch("/api/addtocart", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          variants,
-        }),
-      });
+      try {
+        const response = await fetch("/api/addtocart", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            variants,
+          }),
+        });
 
-      const data = await result.json();
-      console.log(result);
-
-      if (data.success) {
-        console.log("Item added to cart successfully");
-      } else {
-        console.error("Failed to add item to cart");
+        const data = await response.json();
+        if (response.ok) {
+          const newItem = {
+            product: singleProduct,
+            selectedsize: selectedSize,
+            url: data.url,
+          };
+          addItem(newItem);
+        } else {
+          console.error(data.message);
+        }
+      } catch (error) {
+        console.error(error.message);
       }
     }
   };

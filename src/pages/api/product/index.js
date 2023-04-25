@@ -9,7 +9,6 @@ export default function getProducts(req, res) {
       },
     };
 
-    console.log(config)
     axios(config)
       .then(function (response) {
         return res.json({ status: true, data: response.data });
