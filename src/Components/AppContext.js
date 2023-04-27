@@ -12,6 +12,11 @@ export const CartProvider = ({ children }) => {
     }
   }, []);
 
+  // const addItem = (item) => {
+  //   setCartItems(item);
+  //   localStorage.setItem("cartItems", JSON.stringify(item));
+  // };
+
   const addItem = (item) => {
     const existingItemIndex = cartItems.findIndex(
       (cartItem) =>

@@ -17,7 +17,7 @@ function Header() {
 
   useEffect(() => {
     const totalPrice = cartItems.reduce((acc, item) => {
-      const price = item.product.variants[0].price;
+      const price = item.product?.variants[0].price;
       return acc + price * item.quantity;
     }, 0);
     setSubTotalPrice(totalPrice);
@@ -122,18 +122,18 @@ function Header() {
                     <div className="row mt-4" key={i}>
                       <div className="col-3">
                         <img
-                          src={items.product.image.src}
+                          src={items?.product?.image.src}
                           alt="image"
                           style={{ height: "150px", width: "100px" }}
                         />
                       </div>
                       <div className="col-9">
-                        <span>{items.product.title}</span>
-                        <p>Selected size: {items.selectedsize}</p>
-                        {items.product.variants
+                        <span>{items?.product?.title}</span>
+                        <p>Selected size: {items?.selectedsize}</p>
+                        {items?.product?.variants
                           .slice(0, 1)
                           .map((variant, i) => {
-                            return <p key={i}>{formatPrice(variant.price)}</p>;
+                            return <p key={i}>{formatPrice(variant?.price)}</p>;
                           })}
 
                         <div>

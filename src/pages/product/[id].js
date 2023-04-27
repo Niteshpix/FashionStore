@@ -11,11 +11,9 @@ function Singleproduct() {
   const [isLoading, setIsLoading] = useState(false);
   const [singleProduct, setSingleProduct] = useState();
   let images = singleProduct?.images;
-  let options = singleProduct?.options;
-  const sizes = options?.find((item) => item?.name === "Size");
   const [selectedSize, setSelectedSize] = useState("");
   const { addItem } = useContext(CartContext);
-  const [url, setUrl] = useState();
+  const [selectedItems, setSelectedItems] = useState([]);
 
   useEffect(() => {
     setIsLoading(true);
@@ -38,41 +36,51 @@ function Singleproduct() {
     }
   }
 
-  const handleSizeChange = (event) => {
-    setSelectedSize(event.target.value);
+  const handleSizeChange = (item) => {
+    setSelectedSize(item);
+    const index = selectedItems.findIndex(
+      (selectedItem) => selectedItem.id === item.id
+    );
+    if (index === -1) {
+      setSelectedItems([...selectedItems, { ...item, quantity: 1 }]);
+    } else {
+      const updatedItems = [...selectedItems];
+      updatedItems[index].quantity++;
+      setSelectedItems(updatedItems);
+    }
   };
 
   const handleAddToBag = async () => {
-    if (selectedSize) {
-      const variants = [
-        { variantId: 44879913025830, quantity: 2 },
-        { variantId: 44885640806694, quantity: 3 },
-      ];
-      try {
-        const response = await fetch("/api/addtocart", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            variants,
-          }),
-        });
+    setSelectedSize("");
+    const variants = selectedItems.map((selectedItem) => ({
+      variantId: selectedItem.id,
+      quantity: selectedItem.quantity,
+    }));
+    console.log(variants)
+    try {
+      const response = await fetch("/api/addtocart", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          variants,
+        }),
+      });
 
-        const data = await response.json();
-        if (response.ok) {
-          const newItem = {
-            product: singleProduct,
-            selectedsize: selectedSize,
-            url: data.url,
-          };
-          addItem(newItem);
-        } else {
-          console.error(data.message);
-        }
-      } catch (error) {
-        console.error(error.message);
+      const data = await response.json();
+      if (response.ok) {
+        const newItem = {
+          product: singleProduct,
+          selectedsize: selectedSize.title,
+          url: data.url,
+        };
+        addItem(newItem);
+      } else {
+        console.error(data.message);
       }
+    } catch (error) {
+      console.error(error.message);
     }
   };
 
@@ -95,25 +103,24 @@ function Singleproduct() {
             <div className="row mt-4">
               <div className="col">
                 <h6>Uk size</h6>
-                <div className={"sizeinfo"}>
-                  {sizes &&
-                    sizes.values.map((size, index) => (
-                      <label
-                        key={index}
-                        className={`box ${
-                          selectedSize === size ? "selected" : ""
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name="size"
-                          value={size}
-                          checked={selectedSize === size}
-                          onChange={handleSizeChange}
-                        />
-                        {size}
-                      </label>
-                    ))}
+                <div className="sizeinfo">
+                  {singleProduct?.variants.map((variant, index) => (
+                    <label
+                      key={index}
+                      className={`box ${
+                        selectedSize.id === variant.id ? "selected" : ""
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="size"
+                        value={variant.title}
+                        checked={selectedSize === variant.title}
+                        onChange={() => handleSizeChange(variant)}
+                      />
+                      {variant.title}
+                    </label>
+                  ))}
                   <p>Limited Availability</p>
                 </div>
               </div>

@@ -45,7 +45,6 @@ function Catalog() {
         {product.map((prod) => {
           let options = prod?.options;
           const sizes = options.find((item) => item.name === "Size");
-
           const originalImageUrl = prod.image.src;
           const hoverImageUrl =
             "https://cdn.shopify.com/s/files/1/0746/3229/8790/products/jw3.webp?v=1681968349";
