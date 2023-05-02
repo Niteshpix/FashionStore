@@ -12,7 +12,8 @@ export default async function handler(req, res) {
       }
     }
     try {
-      const result = await axios.post(url,
+      const result = await axios.post(
+        url,
         {
           variants,
         },
@@ -26,7 +27,7 @@ export default async function handler(req, res) {
         }
       );
 
-      res.status(200).json({ success: true, url });
+      res.status(200).json({ success: true, url, variants });
     } catch (error) {
       res.status(error.response.status).json({ success: false });
     }

@@ -9,24 +9,21 @@ import { useRouter } from "next/router";
 import formatPrice from "@/config/utils";
 
 function Header() {
-  const { cartItems, removeItem, setCartItems } = useContext(CartContext);
+  const { cartItems, removeItem, setCartItems, checkoutUrl, setCheckoutUrl } =
+    useContext(CartContext);
   const [sliderOpen, setSliderOpen] = useState(false);
   const router = useRouter();
-  const [subTotalPrice, setSubTotalPrice] = useState(0);
-  let url = cartItems[0]?.url;
+  let lines = cartItems?.lines?.edges;
+  let checkout_Url = checkoutUrl?.cart?.checkoutUrl;
 
-  useEffect(() => {
-    const totalPrice = cartItems.reduce((acc, item) => {
-      const price = item.product?.variants[0].price;
-      return acc + price * item.quantity;
-    }, 0);
-    setSubTotalPrice(totalPrice);
-  }, [cartItems]);
+  const subTotalPrice = lines?.reduce((total, line) => {
+    const price = parseFloat(line.node.merchandise.price.amount);
+    return total + price * line.node.quantity;
+  }, 0);
 
-  const totalQuantity = cartItems.reduce(
-    (total, item) => total + item.quantity,
-    0
-  );
+  const totalQuantity = lines?.reduce((total, line) => {
+    return total + line.node.quantity;
+  }, 0);
 
   function toggleSlider() {
     setSliderOpen(!sliderOpen);
@@ -37,7 +34,7 @@ function Header() {
 
   const handleRoute = async () => {
     router.push({
-      pathname: url,
+      pathname: checkout_Url,
     });
     setSliderOpen(false);
   };
@@ -60,6 +57,16 @@ function Header() {
       }
       return item;
     });
+
+    const cartItemsString = updatedCartItems
+      .map((item, index) => {
+        const variant = item.selectedItems[index];
+        return `${variant.id}:${item.quantity}`;
+      })
+      .join(",");
+
+    const url = `https://fashionstroe.myshopify.com/cart/${cartItemsString}`;
+    setCheckoutUrl(url);
     setCartItems(updatedCartItems);
   };
 
@@ -70,6 +77,13 @@ function Header() {
       }
       return item;
     });
+    const cartItemsString = updatedCartItems
+      .map((item, index) => {
+        const variant = item.selectedItems[index];
+        return `${variant.id}:${item.quantity}`;
+      })
+      .join(",");
+
     setCartItems(updatedCartItems);
   };
 
@@ -102,14 +116,14 @@ function Header() {
             className={`${styles.searchIcon} ${styles.searchIconWithMargin}`}
             onClick={() => toggleSlider()}
           />
-          <span>{cartItems.length >= "1" ? totalQuantity : ""}</span>
+          <span>{lines?.length >= "1" ? totalQuantity : ""}</span>
           <div id="slider">
             <button className="crossbtn" onClick={closeSlider}>
               X
             </button>
             <div className="bagdetails">
               <h5>Your bag</h5>
-              {cartItems.length === 0 ? (
+              {lines?.length === 0 ? (
                 <div style={{ textAlign: "center", marginTop: "52%" }}>
                   <p>Your bag is empty</p>
                   <Nav.Link as={Link} href="/catalog" passHref>
@@ -117,25 +131,23 @@ function Header() {
                   </Nav.Link>
                 </div>
               ) : (
-                cartItems.map((items, i) => {
+                lines?.map((items, i) => {
+                  let imgurl = items.node.merchandise.image.originalSrc;
+                  let price = items.node.merchandise.price.amount;
+
                   return (
                     <div className="row mt-4" key={i}>
                       <div className="col-3">
                         <img
-                          src={items?.product?.image.src}
+                          src={imgurl}
                           alt="image"
                           style={{ height: "150px", width: "100px" }}
                         />
                       </div>
                       <div className="col-9">
-                        <span>{items?.product?.title}</span>
+                        <span>{items?.node.merchandise.product?.title}</span>
                         <p>Selected size: {items?.selectedsize}</p>
-                        {items?.product?.variants
-                          .slice(0, 1)
-                          .map((variant, i) => {
-                            return <p key={i}>{formatPrice(variant?.price)}</p>;
-                          })}
-
+                        <p>{formatPrice(price)}</p>
                         <div>
                           <button
                             disabled={items.quantity === 1}
@@ -143,12 +155,14 @@ function Header() {
                           >
                             -
                           </button>
-                          <span>{items.quantity}</span>
+                          <span>{items.node.quantity}</span>
                           <button onClick={() => handleIncrement(i)}>+</button>
 
                           <button
                             className="crossbtn"
-                            onClick={() => removeItem(items.id)}
+                            onClick={() =>
+                              removeItem(items.node.merchandise.id)
+                            }
                           >
                             X
                           </button>
@@ -171,7 +185,7 @@ function Header() {
                 Your order qualifies for free shipping!
               </div>
 
-              {cartItems.length !== 0 ? (
+              {lines?.length !== 0 ? (
                 <div
                   style={{ display: "flex", justifyContent: "space-between" }}
                 >
@@ -182,7 +196,7 @@ function Header() {
                 ""
               )}
 
-              {cartItems.length !== 0 ? (
+              {lines?.length !== 0 ? (
                 <button
                   className={"checkoutbtn"}
                   type="submit"

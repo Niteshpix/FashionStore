@@ -1,34 +1,19 @@
 import React, { useEffect, useState } from "react";
 import styles from "../styles/product.module.css";
-import axios from "axios";
 import { Col, Row } from "react-bootstrap";
 import LoadingSpinner from "@/Components/Common/loader";
 import { useRouter } from "next/router";
+import { getProducts } from "../../utils/shopify";
 
-function Catalog() {
-  const [product, setProduct] = useState([]);
+function Catalog({ data }) {
   const [isLoading, setIsLoading] = useState(false);
   const [hovering, setHovering] = useState(false);
   const router = useRouter();
+  const products = data.products.edges;
 
-  const handleRoutes = (id) => {
-    router.push("/product/" + id);
+  const handleRoutes = (product) => {
+    router.push(`product/${product.node.handle}/?productid=${product.node.id}`);
   };
-
-  useEffect(() => {
-    setIsLoading(true);
-    axios
-      .get("/api/product")
-      .then((res) => {
-        if (res.data.status === true) {
-          setProduct(res.data.data.products);
-          setIsLoading(false);
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }, []);
 
   return isLoading ? (
     <LoadingSpinner />
@@ -42,15 +27,15 @@ function Catalog() {
         style={{ width: "100%", marginTop: "5px" }}
         gutter={10}
       >
-        {product.map((prod) => {
-          let options = prod?.options;
+        {products.map((prod) => {
+          let options = prod?.node.options;
           const sizes = options.find((item) => item.name === "Size");
-          const originalImageUrl = prod.image.src;
+          const originalImageUrl = prod.node.featuredImage.originalSrc;
           const hoverImageUrl =
-            "https://cdn.shopify.com/s/files/1/0746/3229/8790/products/jw3.webp?v=1681968349";
+            "https://cdn.shopify.com/s/files/1/0746/3229/8790/products/jw5.webp?v=1682923509";
           return (
             <div
-              key={prod.id}
+              key={prod.node.id}
               onMouseOver={() => setHovering(true)}
               onMouseOut={() => setHovering(false)}
             >
@@ -58,7 +43,7 @@ function Catalog() {
                 <div
                   className="img"
                   style={{ cursor: "pointer" }}
-                  onClick={() => handleRoutes(prod.id)}
+                  onClick={() => handleRoutes(prod)}
                 >
                   <img
                     src={hovering ? hoverImageUrl : originalImageUrl}
@@ -78,9 +63,9 @@ function Catalog() {
                 </div>
               ) : (
                 <div className={styles.cardinfo}>
-                  <span>{prod.title} </span>
-                  {prod.variants.slice(0, 1).map((variant, i) => {
-                    return <p key={i}>₹{variant.price}</p>;
+                  <span>{prod.node.title} </span>
+                  {prod.node.variants.edges.slice(0, 1).map((variant, i) => {
+                    return <p key={i}>₹{variant.node.price.amount}</p>;
                   })}
                 </div>
               )}
@@ -93,3 +78,10 @@ function Catalog() {
 }
 
 export default Catalog;
+
+export const getServerSideProps = async () => {
+  const data = await getProducts();
+  return {
+    props: { data },
+  };
+};

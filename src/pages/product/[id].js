@@ -1,87 +1,41 @@
 import { CartContext } from "@/Components/AppContext";
 import Slider from "@/Components/Common/slider";
-import axios from "axios";
-import { useRouter } from "next/router";
 import React, { useContext, useEffect, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
+import { addToCart, getProduct, updateCart } from "../../../utils/shopify";
 
-function Singleproduct() {
-  const router = useRouter();
-  let { id } = router.query;
-  const [isLoading, setIsLoading] = useState(false);
-  const [singleProduct, setSingleProduct] = useState();
-  let images = singleProduct?.images;
+function Singleproduct({ product }) {
+  let images = product?.images.edges;
   const [selectedSize, setSelectedSize] = useState("");
   const { addItem } = useContext(CartContext);
-  const [selectedItems, setSelectedItems] = useState([]);
-
-  useEffect(() => {
-    setIsLoading(true);
-    if (router.asPath !== router.route) {
-      fetchSingleProduct();
-    }
-  }, [router]);
-
-  async function fetchSingleProduct() {
-    try {
-      setIsLoading(true);
-      const response = await axios.get(`/api/product/${id}`);
-      if (response.data.status === true) {
-        setSingleProduct(response.data.data.product);
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsLoading(false);
-    }
-  }
 
   const handleSizeChange = (item) => {
-    setSelectedSize(item);
-    const index = selectedItems.findIndex(
-      (selectedItem) => selectedItem.id === item.id
-    );
-    if (index === -1) {
-      setSelectedItems([...selectedItems, { ...item, quantity: 1 }]);
-    } else {
-      const updatedItems = [...selectedItems];
-      updatedItems[index].quantity++;
-      setSelectedItems(updatedItems);
-    }
+    setSelectedSize((prevSelectedSize) => {
+      if (prevSelectedSize.size === item) {
+        return {
+          ...prevSelectedSize,
+          quantity: prevSelectedSize.quantity + 1,
+        };
+      } else {
+        return {
+          size: item,
+          quantity: 1,
+        };
+      }
+    });
   };
 
   const handleAddToBag = async () => {
     setSelectedSize("");
-    const variants = selectedItems.map((selectedItem) => ({
-      variantId: selectedItem.id,
-      quantity: selectedItem.quantity,
-    }));
-    console.log(variants)
-    try {
-      const response = await fetch("/api/addtocart", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          variants,
-        }),
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        const newItem = {
-          product: singleProduct,
-          selectedsize: selectedSize.title,
-          url: data.url,
-        };
-        addItem(newItem);
-      } else {
-        console.error(data.message);
-      }
-    } catch (error) {
-      console.error(error.message);
+    let cartId = sessionStorage.getItem("cartId");
+    if (cartId) {
+      await updateCart(cartId, selectedSize?.size.id, selectedSize.quantity);
+    } else {
+      let data = await addToCart(selectedSize?.size.id, selectedSize.quantity);
+      cartId = data.cartCreate.cart.id;
+      sessionStorage.setItem("cartId", cartId);
     }
+    addItem();
   };
 
   return (
@@ -95,30 +49,32 @@ function Singleproduct() {
         </div>
         <div className="col-sm-5">
           <div className="text-container">
-            <h3>{singleProduct?.title}</h3>
-            {singleProduct?.variants.slice(0, 1).map((variant, i) => {
-              return <p key={i}>₹{variant?.price}</p>;
+            <h3>{product.title}</h3>
+            {product.variants.edges.slice(0, 1).map((variant, i) => {
+              return <p key={i}>₹{variant.node.price.amount}</p>;
             })}
             <div className="seprator" />
             <div className="row mt-4">
               <div className="col">
                 <h6>Uk size</h6>
                 <div className="sizeinfo">
-                  {singleProduct?.variants.map((variant, index) => (
+                  {product.variants.edges.map((variant, index) => (
                     <label
                       key={index}
                       className={`box ${
-                        selectedSize.id === variant.id ? "selected" : ""
+                        selectedSize?.size?.id === variant.node.id
+                          ? "selected"
+                          : ""
                       }`}
                     >
                       <input
                         type="radio"
                         name="size"
-                        value={variant.title}
-                        checked={selectedSize === variant.title}
-                        onChange={() => handleSizeChange(variant)}
+                        value={variant.node.title}
+                        checked={selectedSize.size === variant.node.title}
+                        onChange={() => handleSizeChange(variant.node)}
                       />
-                      {variant.title}
+                      {variant.node.title}
                     </label>
                   ))}
                   <p>Limited Availability</p>
@@ -136,9 +92,7 @@ function Singleproduct() {
                 {selectedSize ? "ADD TO BAG" : "SELECT SIZE"}
               </button>
 
-              <div
-                dangerouslySetInnerHTML={{ __html: singleProduct?.body_html }}
-              />
+              <div dangerouslySetInnerHTML={{ __html: product?.description }} />
               <div
                 style={{
                   borderBottom: "1px solid black",
@@ -160,3 +114,32 @@ function Singleproduct() {
 }
 
 export default Singleproduct;
+
+export const getServerSideProps = async (context) => {
+  const { productid } = context.query;
+
+  if (!productid) {
+    return {
+      redirect: {
+        destination: "/catalog",
+        permanent: false,
+      },
+    };
+  }
+
+  try {
+    const product = await getProduct(productid);
+    return {
+      props: {
+        product,
+      },
+    };
+  } catch (error) {
+    return {
+      redirect: {
+        destination: "/catalog",
+        permanent: false,
+      },
+    };
+  }
+};
