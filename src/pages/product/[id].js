@@ -36,6 +36,9 @@ function Singleproduct({ product }) {
       sessionStorage.setItem("cartId", cartId);
     }
     addItem();
+    toast.success("Item Added !", {
+      position: toast.POSITION.TOP_CENTER,
+    });
   };
 
   return (
