@@ -87,6 +87,7 @@ export const CartProvider = ({ children }) => {
         setCartItems,
         checkoutUrl,
         setCheckoutUrl,
+        getCartData
       }}
     >
       {children}

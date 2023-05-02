@@ -7,10 +7,10 @@ import Link from "next/link";
 import { CartContext } from "../AppContext";
 import { useRouter } from "next/router";
 import formatPrice from "@/config/utils";
+import { updateCart } from "../../../utils/shopify";
 
 function Header() {
-  const { cartItems, removeItem, setCartItems, checkoutUrl, setCheckoutUrl } =
-    useContext(CartContext);
+  const { cartItems, removeItem, checkoutUrl } = useContext(CartContext);
   const [sliderOpen, setSliderOpen] = useState(false);
   const router = useRouter();
   let lines = cartItems?.lines?.edges;
@@ -51,40 +51,23 @@ function Header() {
   }, [sliderOpen]);
 
   const handleDecrement = (index) => {
-    const updatedCartItems = cartItems.map((item, i) => {
-      if (i === index) {
-        return { ...item, quantity: item.quantity - 1 };
-      }
-      return item;
-    });
+    let cartId = sessionStorage.getItem("cartId");
+    const updatedLineItems = cartItems?.lines?.edges;
+    let id = updatedLineItems[index].node.merchandise.id;
+    let qty = updatedLineItems[index].node.quantity;
 
-    const cartItemsString = updatedCartItems
-      .map((item, index) => {
-        const variant = item.selectedItems[index];
-        return `${variant.id}:${item.quantity}`;
-      })
-      .join(",");
-
-    const url = `https://fashionstroe.myshopify.com/cart/${cartItemsString}`;
-    setCheckoutUrl(url);
-    setCartItems(updatedCartItems);
+    if (cartId) {
+      updateCart(cartId, id, qty - 1);
+    }
   };
 
   const handleIncrement = (index) => {
-    const updatedCartItems = cartItems.map((item, i) => {
-      if (i === index) {
-        return { ...item, quantity: item.quantity + 1 };
-      }
-      return item;
-    });
-    const cartItemsString = updatedCartItems
-      .map((item, index) => {
-        const variant = item.selectedItems[index];
-        return `${variant.id}:${item.quantity}`;
-      })
-      .join(",");
-
-    setCartItems(updatedCartItems);
+    let cartId = sessionStorage.getItem("cartId");
+    const updatedLineItems = cartItems?.lines?.edges;
+    let id = updatedLineItems[index].node.merchandise.id;
+    if (cartId) {
+      updateCart(cartId, id, 1);
+    }
   };
 
   return (
@@ -150,7 +133,7 @@ function Header() {
                         <p>{formatPrice(price)}</p>
                         <div>
                           <button
-                            disabled={items.quantity === 1}
+                            disabled={items.node.quantity === 1}
                             onClick={() => handleDecrement(i)}
                           >
                             -
