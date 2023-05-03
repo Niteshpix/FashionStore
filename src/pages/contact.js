@@ -1,9 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 
 function Contact() {
-  
-
-  return <div></div>;
+  return <div className="wraper">contact</div>;
 }
 
 export default Contact;

@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { Nav, Navbar } from "react-bootstrap";
 import styles from "../../styles/Home.module.css";
 import { BsSearch } from "react-icons/bs";
-import { HiOutlineShoppingBag } from "react-icons/hi";
+import { HiOutlineShoppingBag, HiOutlineUser } from "react-icons/hi";
 import Link from "next/link";
 import { CartContext } from "../AppContext";
 import { useRouter } from "next/router";
@@ -137,6 +137,10 @@ function Header() {
         <Navbar.Toggle />
         <Navbar.Collapse className="justify-content-end">
           <BsSearch className={styles.searchIcon} />
+          <HiOutlineUser
+            className={`${styles.searchIcon} ${styles.searchIconWithMargin}`}
+            onClick={() => router.push("/account/login")}
+          />
           <HiOutlineShoppingBag
             className={`${styles.searchIcon} ${styles.searchIconWithMargin}`}
             onClick={() => toggleSlider()}
@@ -148,7 +152,7 @@ function Header() {
             </button>
             <div className="bagdetails">
               <h5>Your bag</h5>
-              {lines?.length === 0 ? (
+              {lines?.length === 0 || lines === undefined ? (
                 <div style={{ textAlign: "center", marginTop: "52%" }}>
                   <p>Your bag is empty</p>
                   <Nav.Link as={Link} href="/catalog" passHref>
@@ -222,7 +226,7 @@ function Header() {
                 ""
               )}
 
-              {lines?.length !== 0 ? (
+              {lines?.length !== 0 || lines === undefined ? (
                 <button
                   className={"checkoutbtn"}
                   type="submit"

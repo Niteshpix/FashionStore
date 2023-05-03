@@ -329,3 +329,32 @@ export async function updateProductQuantity(cartId, lineIds, qty) {
     throw new Error(error);
   }
 }
+
+export async function createCustomer(firstName, lastName, email, password) {
+  const mutation = `
+    mutation customerCreate($input: CustomerCreateInput!) {
+      customerCreate(input: $input) {
+        customer {
+          id
+        }
+        customerUserErrors {
+          field
+          message
+        }
+      }
+    }
+  `;
+
+  const variables = {
+    input: {
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      password: password,
+    },
+  };
+
+  const data = await graphQLClient.request(mutation, variables);
+
+  return data.customerCreate;
+}
