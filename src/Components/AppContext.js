@@ -62,20 +62,21 @@ export const CartProvider = ({ children }) => {
 
   const removeItem = (lineItemId) => {
     const cartId = sessionStorage.getItem("cartId");
-    const updatedCartLines = cartItems.lines.edges.filter(
-      (line) => line.node.merchandise.id !== lineItemId
-    );
-    deleteCartItem(lineItemId, cartId)
+    deleteCartItem(cartId, lineItemId)
       .then((data) => {
-        console.log("Item deleted:", data);
-        // update the UI or perform any additional actions
+        const updatedLines = data.cartLinesRemove.cart.lines.edges.filter(
+          ({ node }) => node.id !== lineItemId
+        );
+
+        const updatedCart = {
+          ...data,
+          lines: { edges: updatedLines },
+        };
+        setCartItems(updatedCart);
       })
       .catch((error) => {
         console.error("Error deleting item:", error);
-        // handle the error or display an error message to the user
       });
-
-    setCartItems({ lines: { edges: updatedCartLines } });
   };
 
   return (
@@ -87,7 +88,7 @@ export const CartProvider = ({ children }) => {
         setCartItems,
         checkoutUrl,
         setCheckoutUrl,
-        getCartData
+        getCartData,
       }}
     >
       {children}

@@ -239,23 +239,91 @@ export const getCheckoutUrl = async (cartId) => {
     throw new Error(error);
   }
 };
-export async function deleteCartItem(cartId, cartLineId) {
-  const deleteCartLineMutation = gql`
-    mutation cartLinesRemove($cartId: ID!, $lineIds: [ID!]!) {
+export async function deleteCartItem(cartId, lineIds) {
+  const removeLineItemMutation = gql`
+    mutation removeLineItem($cartId: ID!, $lineIds: [ID!]!) {
       cartLinesRemove(cartId: $cartId, lineIds: $lineIds) {
         cart {
           id
+          lines(first: 10) {
+            edges {
+              node {
+                id
+                quantity
+                merchandise {
+                  ... on ProductVariant {
+                    id
+                    title
+                    price {
+                      amount
+                      currencyCode
+                    }
+                    selectedOptions {
+                      name
+                      value
+                    }
+                    image {
+                      originalSrc
+                    }
+                    product {
+                      id
+                      handle
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        userErrors {
+          field
+          message
         }
       }
     }
   `;
   const variables = {
-    cartId: cartId,
-    lineIds: [cartLineId],
+    cartId,
+    lineIds: [lineIds],
   };
 
   try {
-    const data = await graphQLClient.request(deleteCartLineMutation, variables);
+    const data = await graphQLClient.request(removeLineItemMutation, variables);
+    return data;
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
+export async function updateProductQuantity(cartId, lineIds, qty) {
+  const UpdateProductQuantity = gql`
+    mutation ($cartId: ID!, $lines: [CartLineUpdateInput!]!) {
+      cartLinesUpdate(cartId: $cartId, lines: $lines) {
+        cart {
+          id
+          lines(first: 10) {
+            edges {
+              node {
+                id
+                quantity
+                merchandise {
+                  ... on ProductVariant {
+                    id
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+  let variables = {
+    cartId: cartId,
+    lines: { id: lineIds, quantity: qty },
+  };
+  try {
+    const data = await graphQLClient.request(UpdateProductQuantity, variables);
     return data;
   } catch (error) {
     throw new Error(error);

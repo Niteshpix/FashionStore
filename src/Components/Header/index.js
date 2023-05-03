@@ -7,10 +7,11 @@ import Link from "next/link";
 import { CartContext } from "../AppContext";
 import { useRouter } from "next/router";
 import formatPrice from "@/config/utils";
-import { updateCart } from "../../../utils/shopify";
+import { updateProductQuantity } from "../../../utils/shopify";
 
 function Header() {
-  const { cartItems, removeItem, checkoutUrl } = useContext(CartContext);
+  const { cartItems, removeItem, checkoutUrl, setCartItems } =
+    useContext(CartContext);
   const [sliderOpen, setSliderOpen] = useState(false);
   const router = useRouter();
   let lines = cartItems?.lines?.edges;
@@ -50,24 +51,65 @@ function Header() {
     }
   }, [sliderOpen]);
 
-  const handleDecrement = (index) => {
+  const handleDecrement = (lineIds, currentQuantity) => {
     let cartId = sessionStorage.getItem("cartId");
-    const updatedLineItems = cartItems?.lines?.edges;
-    let id = updatedLineItems[index].node.merchandise.id;
-    let qty = updatedLineItems[index].node.quantity;
+    let newqty = currentQuantity - 1;
+    updateProductQuantity(cartId, lineIds, newqty).then((updatedCart) => {
+      const updatedLineItem = updatedCart.cartLinesUpdate.cart.lines.edges.find(
+        (edge) => edge.node.id === lineIds
+      );
+      const lineItemIndex = cartItems.lines.edges.findIndex(
+        (edge) => edge.node.id === lineIds
+      );
+      const updatedCartItems = {
+        ...cartItems,
+        lines: {
+          edges: [
+            ...cartItems.lines.edges.slice(0, lineItemIndex),
+            {
+              node: {
+                ...cartItems.lines.edges[lineItemIndex].node,
+                quantity: updatedLineItem.node.quantity,
+              },
+            },
+            ...cartItems.lines.edges.slice(lineItemIndex + 1),
+          ],
+        },
+      };
 
-    if (cartId) {
-      updateCart(cartId, id, qty - 1);
-    }
+      setCartItems(updatedCartItems);
+    });
   };
 
-  const handleIncrement = (index) => {
+  const handleIncrement = (lineIds, currentQuantity) => {
     let cartId = sessionStorage.getItem("cartId");
-    const updatedLineItems = cartItems?.lines?.edges;
-    let id = updatedLineItems[index].node.merchandise.id;
-    if (cartId) {
-      updateCart(cartId, id, 1);
-    }
+    let newqty = currentQuantity + 1;
+    updateProductQuantity(cartId, lineIds, newqty).then((updatedCart) => {
+      // Find the updated line item in the cartItems array and update its quantity
+      const updatedLineItem = updatedCart.cartLinesUpdate.cart.lines.edges.find(
+        (edge) => edge.node.id === lineIds
+      );
+      const lineItemIndex = cartItems.lines.edges.findIndex(
+        (edge) => edge.node.id === lineIds
+      );
+      const updatedCartItems = {
+        ...cartItems,
+        lines: {
+          edges: [
+            ...cartItems.lines.edges.slice(0, lineItemIndex),
+            {
+              node: {
+                ...cartItems.lines.edges[lineItemIndex].node,
+                quantity: updatedLineItem.node.quantity,
+              },
+            },
+            ...cartItems.lines.edges.slice(lineItemIndex + 1),
+          ],
+        },
+      };
+
+      setCartItems(updatedCartItems);
+    });
   };
 
   return (
@@ -117,7 +159,8 @@ function Header() {
                 lines?.map((items, i) => {
                   let imgurl = items.node.merchandise.image.originalSrc;
                   let price = items.node.merchandise.price.amount;
-
+                  let lineIds = items.node.id;
+                  let qty = items.node.quantity;
                   return (
                     <div className="row mt-4" key={i}>
                       <div className="col-3">
@@ -128,24 +171,24 @@ function Header() {
                         />
                       </div>
                       <div className="col-9">
-                        <span>{items?.node.merchandise.product?.title}</span>
-                        <p>Selected size: {items?.selectedsize}</p>
+                        <span>{items.node.merchandise.product.handle}</span>
+                        <p>Selected size: {items.node.merchandise.title}</p>
                         <p>{formatPrice(price)}</p>
                         <div>
                           <button
-                            disabled={items.node.quantity === 1}
-                            onClick={() => handleDecrement(i)}
+                            disabled={qty === 1}
+                            onClick={() => handleDecrement(lineIds, qty)}
                           >
                             -
                           </button>
-                          <span>{items.node.quantity}</span>
-                          <button onClick={() => handleIncrement(i)}>+</button>
+                          <span>{qty}</span>
+                          <button onClick={() => handleIncrement(lineIds, qty)}>
+                            +
+                          </button>
 
                           <button
                             className="crossbtn"
-                            onClick={() =>
-                              removeItem(items.node.merchandise.id)
-                            }
+                            onClick={() => removeItem(lineIds)}
                           >
                             X
                           </button>
