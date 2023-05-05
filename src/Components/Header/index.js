@@ -2,12 +2,16 @@ import React, { useContext, useEffect, useState } from "react";
 import { Nav, Navbar } from "react-bootstrap";
 import styles from "../../styles/Home.module.css";
 import { BsSearch } from "react-icons/bs";
-import { HiOutlineShoppingBag, HiOutlineUser } from "react-icons/hi";
+import {
+  HiOutlineShoppingBag,
+  HiOutlineUser,
+  HiOutlineLogout,
+} from "react-icons/hi";
 import Link from "next/link";
 import { CartContext } from "../AppContext";
 import { useRouter } from "next/router";
-import formatPrice from "@/config/utils";
 import { updateProductQuantity } from "../../../utils/shopify";
+import formatPrice from "../../../utils/helpers";
 
 function Header() {
   const { cartItems, removeItem, checkoutUrl, setCartItems } =
@@ -16,6 +20,17 @@ function Header() {
   const router = useRouter();
   let lines = cartItems?.lines?.edges;
   let checkout_Url = checkoutUrl?.cart?.checkoutUrl;
+  const [token, setToken] = useState(false);
+  useEffect(() => {
+    const token = sessionStorage.getItem("token");
+    setToken(token !== null);
+  }, [token]);
+
+  const handlelogout = () => {
+    sessionStorage.removeItem("token");
+    router.push("/account/login");
+    setToken(false);
+  };
 
   const subTotalPrice = lines?.reduce((total, line) => {
     const price = parseFloat(line.node.merchandise.price.amount);
@@ -137,15 +152,24 @@ function Header() {
         <Navbar.Toggle />
         <Navbar.Collapse className="justify-content-end">
           <BsSearch className={styles.searchIcon} />
-          <HiOutlineUser
-            className={`${styles.searchIcon} ${styles.searchIconWithMargin}`}
-            onClick={() => router.push("/account/login")}
-          />
           <HiOutlineShoppingBag
             className={`${styles.searchIcon} ${styles.searchIconWithMargin}`}
             onClick={() => toggleSlider()}
           />
-          <span>{lines?.length >= "1" ? totalQuantity : ""}</span>
+          <span>{lines && lines.length >= "1" ? totalQuantity : ""}</span>
+
+          {token ? (
+            <HiOutlineLogout
+              className={`${styles.searchIcon} ${styles.searchIconWithMargin}`}
+              onClick={() => handlelogout()}
+            />
+          ) : (
+            <HiOutlineUser
+              className={`${styles.searchIcon} ${styles.searchIconWithMargin}`}
+              onClick={() => router.push("/account/login")}
+            />
+          )}
+
           <div id="slider">
             <button className="crossbtn" onClick={closeSlider}>
               X
