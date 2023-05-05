@@ -1,6 +1,7 @@
 const storefrontAccessToken = `${process.env.NEXT_PUBLIC_SHOPIFY_STORE_FRONT_ACCESS_TOKEN}`;
 const endpoint = "https://fashionstroe.myshopify.com/api/2023-04/graphql.json";
 import { gql, GraphQLClient } from "graphql-request";
+
 const graphQLClient = new GraphQLClient(endpoint, {
   headers: {
     "X-Shopify-Storefront-Access-Token": storefrontAccessToken,
@@ -357,4 +358,31 @@ export async function createCustomer(firstName, lastName, email, password) {
   const data = await graphQLClient.request(mutation, variables);
 
   return data.customerCreate;
+}
+export async function login(email, password) {
+  const mutation = `
+    mutation customerAccessTokenCreate($input: CustomerAccessTokenCreateInput!) {
+      customerAccessTokenCreate(input: $input) {
+        customerAccessToken {
+          accessToken
+          expiresAt
+        }
+        customerUserErrors {
+          field
+          message
+        }
+      }
+    }
+  `;
+
+  const variables = {
+    input: {
+      email: email,
+      password: password,
+    },
+  };
+
+  const data = await graphQLClient.request(mutation, variables);
+
+  return data.customerAccessTokenCreate;
 }
