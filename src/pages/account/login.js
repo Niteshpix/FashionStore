@@ -42,7 +42,7 @@ function LoginForm() {
           position: toast.POSITION.TOP_CENTER,
         });
         setTimeout(() => {
-          window.location.href = "/";
+          window.location.href = "/account";
         }, 2000);
       } else {
         let errormessage = res.customerUserErrors[0].message;

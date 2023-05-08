@@ -12,7 +12,7 @@ export default function App({ Component, pageProps }) {
   useEffect(() => {
     let token = sessionStorage.getItem("token");
     if (token || router.pathname === "/account/login") {
-      router.push("/");
+      router.push("/account");
     } else {
       router.push("/account/login");
     }
