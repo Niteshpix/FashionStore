@@ -386,3 +386,38 @@ export async function login(email, password) {
 
   return data.customerAccessTokenCreate;
 }
+export async function getCustomerOrders(customerToken) {
+  const getCustomerOrdersQuery = gql`
+    query GetCustomerOrders($customerToken: String!) {
+      customer(customerAccessToken: $customerToken) {
+        orders(first: 10) {
+          nodes {
+            id
+            name
+            processedAt
+            financialStatus
+            fulfillmentStatus
+            totalPriceV2 {
+              amount
+              currencyCode
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  const variables = {
+    customerToken: customerToken,
+  };
+
+  try {
+    const response = await graphQLClient.request(
+      getCustomerOrdersQuery,
+      variables
+    );
+    return response;
+  } catch (error) {
+    throw new Error(error);
+  }
+}

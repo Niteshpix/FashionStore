@@ -49,9 +49,15 @@ function Header() {
   }
 
   const handleRoute = async () => {
-    router.push({
-      pathname: checkout_Url,
-    });
+    let token = sessionStorage.getItem("token");
+    if (token === null) {
+      router.push("/account/login");
+    } else {
+      router.push({
+        pathname: checkout_Url,
+      });
+    }
+
     setSliderOpen(false);
   };
 
@@ -139,14 +145,11 @@ function Header() {
           </h2>
         </Navbar.Brand>
         <Nav className="me-auto">
-          <Nav.Link as={Link} href="/" passHref active>
+          <Nav.Link as={Link} href="/account" passHref active>
             Home
           </Nav.Link>
           <Nav.Link as={Link} href="/catalog" passHref>
             Catalog
-          </Nav.Link>
-          <Nav.Link as={Link} href="/contact" passHref>
-            Contact
           </Nav.Link>
         </Nav>
         <Navbar.Toggle />
@@ -239,18 +242,20 @@ function Header() {
                 Your order qualifies for free shipping!
               </div>
 
-              {lines?.length !== 0 ? (
+              {lines?.length === 0 || lines === undefined ? (
+                ""
+              ) : (
                 <div
                   style={{ display: "flex", justifyContent: "space-between" }}
                 >
                   <span>Subtotal</span>
                   <p>{formatPrice(subTotalPrice)}</p>
                 </div>
-              ) : (
-                ""
               )}
 
-              {lines?.length !== 0 || lines === undefined ? (
+              {lines?.length == 0 || lines === undefined ? (
+                ""
+              ) : (
                 <button
                   className={"checkoutbtn"}
                   type="submit"
@@ -258,8 +263,6 @@ function Header() {
                 >
                   CHECK OUT
                 </button>
-              ) : (
-                ""
               )}
             </div>
           </div>
