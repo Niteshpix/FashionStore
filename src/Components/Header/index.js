@@ -5,7 +5,6 @@ import { BsSearch } from "react-icons/bs";
 import {
   HiOutlineShoppingBag,
   HiOutlineUser,
-  HiOutlineLogout,
 } from "react-icons/hi";
 import Link from "next/link";
 import { CartContext } from "../AppContext";
@@ -25,12 +24,6 @@ function Header() {
     const token = sessionStorage.getItem("token");
     setToken(token !== null);
   }, [token]);
-
-  const handlelogout = () => {
-    sessionStorage.removeItem("token");
-    router.push("/account/login");
-    setToken(false);
-  };
 
   const subTotalPrice = lines?.reduce((total, line) => {
     const price = parseFloat(line.node.merchandise.price.amount);
@@ -132,6 +125,13 @@ function Header() {
       setCartItems(updatedCartItems);
     });
   };
+  const handleRoutes = () => {
+    if (token) {
+      router.push("/account");
+    } else {
+      router.push("/account/login");
+    }
+  };
 
   return (
     <div>
@@ -145,7 +145,7 @@ function Header() {
           </h2>
         </Navbar.Brand>
         <Nav className="me-auto">
-          <Nav.Link as={Link} href="/account" passHref active>
+          <Nav.Link as={Link} href="/" passHref active>
             Home
           </Nav.Link>
           <Nav.Link as={Link} href="/catalog" passHref>
@@ -161,17 +161,10 @@ function Header() {
           />
           <span>{lines && lines.length >= "1" ? totalQuantity : ""}</span>
 
-          {token ? (
-            <HiOutlineLogout
-              className={`${styles.searchIcon} ${styles.searchIconWithMargin}`}
-              onClick={() => handlelogout()}
-            />
-          ) : (
-            <HiOutlineUser
-              className={`${styles.searchIcon} ${styles.searchIconWithMargin}`}
-              onClick={() => router.push("/account/login")}
-            />
-          )}
+          <HiOutlineUser
+            className={`${styles.searchIcon} ${styles.searchIconWithMargin}`}
+            onClick={() => handleRoutes()}
+          />
 
           <div id="slider">
             <button className="crossbtn" onClick={closeSlider}>

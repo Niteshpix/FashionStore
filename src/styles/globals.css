@@ -114,3 +114,12 @@
   cursor: no-drop;
   width: 100%;
 }
+
+button.back_btn {
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  font-size: 25px;
+  margin-bottom: 6px;
+}

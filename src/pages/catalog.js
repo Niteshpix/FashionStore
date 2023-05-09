@@ -28,7 +28,6 @@ function Catalog({ data }) {
         gutter={10}
       >
         {products.map((prod) => {
-          //console.log(prod)
           let options = prod?.node.options;
           const sizes = options.find((item) => item.name === "Size");
           const originalImageUrl = prod.node.featuredImage.originalSrc;

@@ -12,3 +12,16 @@ export function formatDate(dateString) {
   const formattedDate = date.toLocaleDateString(undefined, options);
   return formattedDate;
 }
+export function formatTimestamp(timestamp) {
+  const date = new Date(timestamp);
+  const options = {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    hour12: true,
+  };
+  const formattedTimestamp = date.toLocaleString("en-US", options);
+  return `Placed on ${formattedTimestamp}`;
+}

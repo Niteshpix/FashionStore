@@ -3,11 +3,30 @@ import Slider from "@/Components/Common/slider";
 import React, { useContext, useEffect, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import { addToCart, getProduct, updateCart } from "../../../utils/shopify";
+import { useRouter } from "next/router";
 
-function Singleproduct({ product }) {
+function Singleproduct() {
+  let [product, SetProduct] = useState();
   let images = product?.images.edges;
   const [selectedSize, setSelectedSize] = useState("");
   const { addItem } = useContext(CartContext);
+  const router = useRouter();
+  const { productid } = router.query;
+
+  useEffect(() => {
+    const fetchOrder = async () => {
+      try {
+        const response = await getProduct(productid);
+        product = response;
+        SetProduct(response);
+      } catch (error) {
+        console.error("Error fetching order:", error);
+      }
+    };
+    if (router.asPath !== router.pathname) {
+      fetchOrder();
+    }
+  }, [productid]);
 
   const handleSizeChange = (item) => {
     setSelectedSize((prevSelectedSize) => {
@@ -24,7 +43,6 @@ function Singleproduct({ product }) {
       }
     });
   };
-
   const handleAddToBag = async () => {
     setSelectedSize("");
     let cartId = sessionStorage.getItem("cartId");
@@ -52,34 +70,36 @@ function Singleproduct({ product }) {
         </div>
         <div className="col-sm-5">
           <div className="text-container">
-            <h3>{product.title}</h3>
-            {product.variants.edges.slice(0, 1).map((variant, i) => {
-              return <p key={i}>₹{variant.node.price.amount}</p>;
-            })}
+            <h3>{product && product.title}</h3>
+            {product &&
+              product.variants.edges.slice(0, 1).map((variant, i) => {
+                return <p key={i}>₹{variant.node.price.amount}</p>;
+              })}
             <div className="seprator" />
             <div className="row mt-4">
               <div className="col">
                 <h6>Uk size</h6>
                 <div className="sizeinfo">
-                  {product.variants.edges.map((variant, index) => (
-                    <label
-                      key={index}
-                      className={`box ${
-                        selectedSize?.size?.id === variant.node.id
-                          ? "selected"
-                          : ""
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="size"
-                        value={variant.node.title}
-                        checked={selectedSize.size === variant.node.title}
-                        onChange={() => handleSizeChange(variant.node)}
-                      />
-                      {variant.node.title}
-                    </label>
-                  ))}
+                  {product &&
+                    product?.variants.edges.map((variant, index) => (
+                      <label
+                        key={index}
+                        className={`box ${
+                          selectedSize?.size?.id === variant.node.id
+                            ? "selected"
+                            : ""
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="size"
+                          value={variant.node.title}
+                          checked={selectedSize.size === variant.node.title}
+                          onChange={() => handleSizeChange(variant.node)}
+                        />
+                        {variant.node.title}
+                      </label>
+                    ))}
                   <p>Limited Availability</p>
                 </div>
               </div>
@@ -118,31 +138,31 @@ function Singleproduct({ product }) {
 
 export default Singleproduct;
 
-export const getServerSideProps = async (context) => {
-  const { productid } = context.query;
+// export const getServerSideProps = async (context) => {
+//   const { productid } = context.query;
 
-  if (!productid) {
-    return {
-      redirect: {
-        destination: "/catalog",
-        permanent: false,
-      },
-    };
-  }
+//   if (!productid) {
+//     return {
+//       redirect: {
+//         destination: "/catalog",
+//         permanent: false,
+//       },
+//     };
+//   }
 
-  try {
-    const product = await getProduct(productid);
-    return {
-      props: {
-        product,
-      },
-    };
-  } catch (error) {
-    return {
-      redirect: {
-        destination: "/catalog",
-        permanent: false,
-      },
-    };
-  }
-};
+//   try {
+//     const product = await getProduct(productid);
+//     return {
+//       props: {
+//         product,
+//       },
+//     };
+//   } catch (error) {
+//     return {
+//       redirect: {
+//         destination: "/catalog",
+//         permanent: false,
+//       },
+//     };
+//   }
+// };

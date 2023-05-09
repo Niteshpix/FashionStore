@@ -390,9 +390,26 @@ export async function getCustomerOrders(customerToken) {
   const getCustomerOrdersQuery = gql`
     query GetCustomerOrders($customerToken: String!) {
       customer(customerAccessToken: $customerToken) {
+        id
+        firstName
+        lastName
+        email
+        defaultAddress {
+          id
+          firstName
+          lastName
+          address1
+          address2
+          city
+          province
+          country
+          zip
+          phone
+        }
         orders(first: 10) {
           nodes {
             id
+            orderNumber
             name
             processedAt
             financialStatus
@@ -416,6 +433,51 @@ export async function getCustomerOrders(customerToken) {
       getCustomerOrdersQuery,
       variables
     );
+    return response;
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+export async function getOrderById(orderId) {
+  const getOrderByIdQuery = gql`
+  query {
+    node(id: "gid://shopify/Order/${orderId}") {
+      ... on Order {
+        id
+        orderNumber
+        processedAt
+        lineItems(first: 10) {
+          edges {
+            node {
+              title
+              quantity
+              variant {
+                id
+                price {
+                  amount
+                }
+                sku
+                product {
+                  id
+                  title
+                  description
+                  handle
+                  # Add any additional fields you need
+                }
+              }
+              originalTotalPrice {
+                amount
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+  try {
+    const response = await graphQLClient.request(getOrderByIdQuery);
     return response;
   } catch (error) {
     throw new Error(error);
