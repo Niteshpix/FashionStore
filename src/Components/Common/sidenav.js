@@ -4,6 +4,7 @@ import { HiOutlineLogout } from "react-icons/hi";
 import { useRouter } from "next/router";
 import MyOrderComponent from "../Accounts/order";
 import Wishlist from "../Accounts/wishlist";
+import AddressBook from "../Accounts/addressbook";
 
 const SideNav = (props) => {
   let { orders, userDetails } = props;
@@ -24,6 +25,8 @@ const SideNav = (props) => {
       return <MyOrderComponent orders={orders} userDetails={userDetails} />;
     } else if (selectedItem === "My Wishlist") {
       return <Wishlist />;
+    } else if (selectedItem === "My Address Book") {
+      return <AddressBook userDetails={userDetails} />;
     } else {
       return null; // Render nothing if no menu item is selected
     }
@@ -44,6 +47,12 @@ const SideNav = (props) => {
             onClick={() => handleMenuItemClick("My Wishlist")}
           >
             My Wishlist
+          </li>
+          <li
+            className={styles.menuItem}
+            onClick={() => handleMenuItemClick("My Address Book")}
+          >
+            My Address Book
           </li>
           <li className={styles.menuItem} onClick={() => handleLogout()}>
             Logout <HiOutlineLogout />

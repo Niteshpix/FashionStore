@@ -240,6 +240,7 @@ export const getCheckoutUrl = async (cartId) => {
     throw new Error(error);
   }
 };
+
 export async function deleteCartItem(cartId, lineIds) {
   const removeLineItemMutation = gql`
     mutation removeLineItem($cartId: ID!, $lineIds: [ID!]!) {
@@ -359,6 +360,31 @@ export async function createCustomer(firstName, lastName, email, password) {
 
   return data.customerCreate;
 }
+export async function createAddress(customerAccessToken, address) {
+  const mutation = `
+    mutation customerAddressCreate($customerAccessToken: String!, $address: MailingAddressInput!) {
+      customerAddressCreate(customerAccessToken: $customerAccessToken, address: $address) {
+        customerAddress {
+          id
+        }
+        customerUserErrors {
+          field
+          message
+        }
+      }
+    }
+  `;
+
+  const variables = {
+    customerAccessToken: customerAccessToken,
+    address: address,
+  };
+
+  const data = await graphQLClient.request(mutation, variables);
+
+  return data.customerAddressCreate;
+}
+
 export async function login(email, password) {
   const mutation = `
     mutation customerAccessTokenCreate($input: CustomerAccessTokenCreateInput!) {
@@ -386,6 +412,7 @@ export async function login(email, password) {
 
   return data.customerAccessTokenCreate;
 }
+
 export async function getCustomerOrders(customerToken) {
   const getCustomerOrdersQuery = gql`
     query GetCustomerOrders($customerToken: String!) {
@@ -394,6 +421,24 @@ export async function getCustomerOrders(customerToken) {
         firstName
         lastName
         email
+        addresses(first: 10) {
+          edges {
+            node {
+              id
+              firstName
+              lastName
+              address1
+              address2
+              city
+              province
+              country
+              zip
+              phone
+              formatted(withName: true)
+              company
+            }
+          }
+        }
         defaultAddress {
           id
           firstName
@@ -405,6 +450,7 @@ export async function getCustomerOrders(customerToken) {
           country
           zip
           phone
+          formatted(withName: true)
         }
         orders(first: 10) {
           nodes {
@@ -433,11 +479,20 @@ export async function getCustomerOrders(customerToken) {
       getCustomerOrdersQuery,
       variables
     );
+
+    // Identify the default address
+    const defaultAddressId = response.customer.defaultAddress.id;
+    // Set the 'isDefault' field for each address
+    response.customer.addresses.edges.forEach((edge) => {
+      const addressId = edge.node.id;
+      edge.node.isDefault = addressId === defaultAddressId;
+    });
     return response;
   } catch (error) {
     throw new Error(error);
   }
 }
+
 export async function getOrderById(orderId) {
   const getOrderByIdQuery = gql`
   query {
