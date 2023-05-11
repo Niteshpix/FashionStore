@@ -13,7 +13,7 @@ export default function App({ Component, pageProps }) {
     let token = sessionStorage.getItem("token");
     if (!token && router.pathname === "/account") {
       router.push("/account/login");
-    } 
+    }
   }, []);
   return (
     <CartProvider>

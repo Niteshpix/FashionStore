@@ -384,6 +384,31 @@ export async function createAddress(customerAccessToken, address) {
 
   return data.customerAddressCreate;
 }
+export async function updateAddress(customerAccessToken, addressId, address) {
+  const mutation = `
+    mutation customerAddressUpdate($customerAccessToken: String!, $id: ID!, $address: MailingAddressInput!) {
+      customerAddressUpdate(customerAccessToken: $customerAccessToken, id: $id, address: $address) {
+        customerAddress {
+          id
+        }
+        customerUserErrors {
+          field
+          message
+        }
+      }
+    }
+  `;
+
+  const variables = {
+    customerAccessToken: customerAccessToken,
+    id: addressId,
+    address: address,
+  };
+
+  const data = await graphQLClient.request(mutation, variables);
+
+  return data.customerAddressUpdate;
+}
 
 export async function login(email, password) {
   const mutation = `
@@ -481,10 +506,10 @@ export async function getCustomerOrders(customerToken) {
     );
 
     // Identify the default address
-    const defaultAddressId = response.customer.defaultAddress.id;
+    const defaultAddressId = response?.customer?.defaultAddress.id;
     // Set the 'isDefault' field for each address
-    response.customer.addresses.edges.forEach((edge) => {
-      const addressId = edge.node.id;
+    response?.customer?.addresses?.edges?.forEach((edge) => {
+      const addressId = edge?.node.id;
       edge.node.isDefault = addressId === defaultAddressId;
     });
     return response;
@@ -534,6 +559,49 @@ export async function getOrderById(orderId) {
   try {
     const response = await graphQLClient.request(getOrderByIdQuery);
     return response;
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+export async function deleteCustomerAddress(customerToken, addressId) {
+  const deleteCustomerAddressMutation = gql`
+    mutation DeleteCustomerAddress(
+      $customerAccessToken: String!
+      $addressId: ID!
+    ) {
+      customerAddressDelete(
+        customerAccessToken: $customerAccessToken
+        id: $addressId
+      ) {
+        customerUserErrors {
+          field
+          message
+        }
+        deletedCustomerAddressId
+      }
+    }
+  `;
+
+  const variables = {
+    customerAccessToken: customerToken,
+    addressId: addressId,
+  };
+
+  try {
+    const response = await graphQLClient.request(
+      deleteCustomerAddressMutation,
+      variables
+    );
+
+    if (response.customerAddressDelete.customerUserErrors.length > 0) {
+      // Error occurred while deleting the address
+      throw new Error(
+        response.customerAddressDelete.customerUserErrors[0].message
+      );
+    }
+
+    // Address deleted successfully
+    return response.customerAddressDelete.deletedCustomerAddressId;
   } catch (error) {
     throw new Error(error);
   }

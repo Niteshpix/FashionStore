@@ -7,7 +7,7 @@ import Wishlist from "../Accounts/wishlist";
 import AddressBook from "../Accounts/addressbook";
 
 const SideNav = (props) => {
-  let { orders, userDetails } = props;
+  let { orders, userDetails, setCustomerDetails } = props;
   const router = useRouter();
   const [selectedItem, setSelectedItem] = useState("My Order");
 
@@ -22,11 +22,16 @@ const SideNav = (props) => {
 
   const renderComponent = () => {
     if (selectedItem === "My Order") {
-      return <MyOrderComponent orders={orders} userDetails={userDetails} />;
+      return <MyOrderComponent orders={orders} userDetails={userDetails} setCustomerDetails={setCustomerDetails} />;
     } else if (selectedItem === "My Wishlist") {
       return <Wishlist />;
     } else if (selectedItem === "My Address Book") {
-      return <AddressBook userDetails={userDetails} />;
+      return (
+        <AddressBook
+          userDetails={userDetails}
+          setCustomerDetails={setCustomerDetails}
+        />
+      );
     } else {
       return null; // Render nothing if no menu item is selected
     }

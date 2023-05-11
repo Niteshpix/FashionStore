@@ -24,7 +24,7 @@ function UserAccount() {
   return (
     <div className="wraper">
       <h4>My Account</h4>
-      <SideNav orders={orders} userDetails={userDetails} />
+      <SideNav orders={orders} userDetails={userDetails} setCustomerDetails={setCustomerDetails} />
     </div>
   );
 }

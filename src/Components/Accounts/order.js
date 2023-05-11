@@ -78,7 +78,9 @@ function MyOrderComponent(props) {
               {userDetails?.defaultAddress.country}
             </span>
           </div>
-          <button style={{marginTop:"12px", border:"none"}} type="text">View details</button>
+          <button style={{ marginTop: "12px", border: "none" }} type="text">
+            View details
+          </button>
         </div>
       </div>
     </div>
