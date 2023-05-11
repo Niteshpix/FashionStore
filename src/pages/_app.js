@@ -9,14 +9,12 @@ import "react-toastify/dist/ReactToastify.css";
 export default function App({ Component, pageProps }) {
   const router = useRouter();
 
-  // useEffect(() => {
-  //   let token = sessionStorage.getItem("token");
-  //   if (!token && router.pathname === "/account") {
-  //     router.push("/account/login");
-  //   } else {
-  //     router.push("/");
-  //   }
-  // }, []);
+  useEffect(() => {
+    let token = sessionStorage.getItem("token");
+    if (!token && router.pathname === "/account") {
+      router.push("/account/login");
+    } 
+  }, []);
   return (
     <CartProvider>
       <Layout>
