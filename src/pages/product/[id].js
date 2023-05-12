@@ -47,6 +47,8 @@ function Singleproduct() {
       }
     });
   };
+
+  //console.log(selectedSize.size.quantityAvailable);
   const handleAddToBag = async () => {
     setSelectedSize("");
     let cartId = sessionStorage.getItem("cartId");
@@ -62,7 +64,6 @@ function Singleproduct() {
       position: toast.POSITION.TOP_CENTER,
     });
   };
-
   return (
     <div className="wraper">
       <ToastContainer />
@@ -88,26 +89,32 @@ function Singleproduct() {
                   <h6>Uk size</h6>
                   <div className="sizeinfo">
                     {product &&
-                      product?.variants.edges.map((variant, index) => (
-                        <label
-                          key={index}
-                          className={`box ${
-                            selectedSize?.size?.id === variant.node.id
-                              ? "selected"
-                              : ""
-                          }`}
-                        >
-                          <input
-                            type="radio"
-                            name="size"
-                            value={variant.node.title}
-                            checked={selectedSize.size === variant.node.title}
-                            onChange={() => handleSizeChange(variant.node)}
-                          />
-                          {variant.node.title}
-                        </label>
-                      ))}
-                    <p>Limited Availability</p>
+                      product?.variants.edges.map((variant, index) => {
+                        const isSoldOut = variant.node.quantityAvailable === 0;
+
+                        return (
+                          <label
+                            key={index}
+                            className={`box ${
+                              selectedSize &&
+                              selectedSize.size.id === variant.node.id
+                                ? "selected"
+                                : isSoldOut
+                                ? "soldout"
+                                : ""
+                            }`}
+                          >
+                            <input
+                              type="radio"
+                              name="size"
+                              value={variant.node.title}
+                              checked={selectedSize.size === variant.node.title}
+                              onChange={() => handleSizeChange(variant.node)}
+                            />
+                            {variant.node.title}
+                          </label>
+                        );
+                      })}
                   </div>
                 </div>
                 <div className="col" style={{ textAlign: "end" }}>
@@ -116,10 +123,18 @@ function Singleproduct() {
                 <button
                   className={"bannerbutton1"}
                   style={{ marginTop: "30px" }}
-                  disabled={!selectedSize}
+                  disabled={
+                    !selectedSize || selectedSize?.size?.quantityAvailable === 0
+                  }
                   onClick={handleAddToBag}
                 >
-                  {selectedSize ? "ADD TO BAG" : "SELECT SIZE"}
+                  {!selectedSize ? "SELECT SIZE" : ""}
+                  {selectedSize?.size?.quantityAvailable !== 0 && selectedSize
+                    ? "ADD TO BAG"
+                    : ""}
+                  {selectedSize?.size?.quantityAvailable === 0
+                    ? "SOLD OUT"
+                    : ""}
                 </button>
 
                 <div

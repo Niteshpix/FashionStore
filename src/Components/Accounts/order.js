@@ -15,9 +15,9 @@ function MyOrderComponent(props) {
 
   return (
     <div>
-      <div className="row">
-        <div className="col-9">
-          {orders ? (
+      {orders.length !== 0 ? (
+        <div className="row">
+          <div className="col-9">
             <div>
               <h4>Order History</h4>
               <p>
@@ -57,32 +57,35 @@ function MyOrderComponent(props) {
                 </tbody>
               </Table>
             </div>
-          ) : (
-            "You haven't placed any orders yet. "
-          )}
-        </div>
-        <div className="col-3">
-          <h4>Account details</h4>
-          <h5>
-            {userDetails?.firstName} {userDetails?.lastName}
-          </h5>
-          <h6>{userDetails?.email}</h6>
-          <div>
-            <span>
-              {userDetails?.defaultAddress.city}
-              {", "}
-              {userDetails?.defaultAddress.province}
-              {", "}
-              {userDetails?.defaultAddress.zip}
-              {", "}
-              {userDetails?.defaultAddress.country}
-            </span>
           </div>
-          <button style={{ marginTop: "12px", border: "none" }} type="text">
-            View details
-          </button>
+          <div className="col-3">
+            <h4>Account details</h4>
+            <h5>
+              {userDetails?.firstName} {userDetails?.lastName}
+            </h5>
+            <h6>{userDetails?.email}</h6>
+            <div>
+              <span>
+                {userDetails?.defaultAddress.city}
+                {", "}
+                {userDetails?.defaultAddress.province}
+                {", "}
+                {userDetails?.defaultAddress.zip}
+                {", "}
+                {userDetails?.defaultAddress.country}
+              </span>
+            </div>
+            <button style={{ marginTop: "12px", border: "none" }} type="text">
+              View details
+            </button>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div>
+          <h4>No order History</h4>
+          <p>You haven't placed any orders yet.</p>
+        </div>
+      )}
     </div>
   );
 }

@@ -50,6 +50,22 @@
   background-color: black;
   color: white;
 }
+.box.soldout:before {
+  content: "";
+  position: absolute;
+  bottom: 16px;
+  width: 20px;
+  height: 1px;
+  background: black;
+  left: 0;
+  right: 0;
+  margin: auto;
+}
+
+.box.soldout {
+  color: black;
+  position: relative;
+}
 
 .box input[type="radio"] {
   display: none;

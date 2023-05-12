@@ -1,5 +1,5 @@
 const storefrontAccessToken = `${process.env.NEXT_PUBLIC_SHOPIFY_STORE_FRONT_ACCESS_TOKEN}`;
-const endpoint = "https://fashionstroe.myshopify.com/api/2023-04/graphql.json";
+const endpoint = "https://jolenefashion.myshopify.com/api/2023-04/graphql.json";
 import { gql, GraphQLClient } from "graphql-request";
 
 const graphQLClient = new GraphQLClient(endpoint, {
@@ -209,6 +209,7 @@ export const getProduct = async (id) => {
                 amount
                 currencyCode
               }
+              quantityAvailable
             }
           }
         }

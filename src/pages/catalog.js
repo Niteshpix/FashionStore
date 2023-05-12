@@ -7,10 +7,13 @@ import { getProducts } from "../../utils/shopify";
 
 function Catalog() {
   const [isLoading, setIsLoading] = useState(false);
-  const [hovering, setHovering] = useState(false);
   const router = useRouter();
-
   const [products, setProducts] = useState([]);
+  const [hoveringId, setHoveringId] = useState(null);
+
+  const handleHover = (productId) => {
+    setHoveringId(productId);
+  };
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -49,11 +52,13 @@ function Catalog() {
           const sizes = options.find((item) => item.name === "Size");
           const originalImageUrl = prod.node.images.edges[0].node.originalSrc;
           const hoverImageUrl = prod.node.images.edges[1].node.originalSrc;
+          const isHovering = hoveringId === prod.node.id;
+
           return (
             <div
               key={prod.node.id}
-              onMouseOver={() => setHovering(true)}
-              onMouseOut={() => setHovering(false)}
+              onMouseEnter={() => handleHover(prod.node.id)}
+              onMouseLeave={() => handleHover(null)}
             >
               <Col>
                 <div
@@ -62,29 +67,29 @@ function Catalog() {
                   onClick={() => handleRoutes(prod)}
                 >
                   <img
-                    src={hovering ? hoverImageUrl : originalImageUrl}
+                    src={isHovering ? hoverImageUrl : originalImageUrl}
                     alt=""
                     style={{ height: "640px", width: "450px" }}
                   />
                 </div>
+                {isHovering ? (
+                  <div className={styles.sizeinfo}>
+                    {sizes &&
+                      sizes.values.map((size, index) => (
+                        <div key={index} className={styles.box}>
+                          {size}
+                        </div>
+                      ))}
+                  </div>
+                ) : (
+                  <div className={styles.cardinfo}>
+                    <span>{prod.node.title} </span>
+                    {prod.node.variants.edges.slice(0, 1).map((variant, i) => {
+                      return <p key={i}>₹{variant.node.price.amount}</p>;
+                    })}
+                  </div>
+                )}
               </Col>
-              {hovering ? (
-                <div className={styles.sizeinfo}>
-                  {sizes &&
-                    sizes.values.map((size, index) => (
-                      <div key={index} className={styles.box}>
-                        {size}
-                      </div>
-                    ))}
-                </div>
-              ) : (
-                <div className={styles.cardinfo}>
-                  <span>{prod.node.title} </span>
-                  {prod.node.variants.edges.slice(0, 1).map((variant, i) => {
-                    return <p key={i}>₹{variant.node.price.amount}</p>;
-                  })}
-                </div>
-              )}
             </div>
           );
         })}
