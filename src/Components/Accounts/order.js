@@ -83,7 +83,7 @@ function MyOrderComponent(props) {
       ) : (
         <div>
           <h4>No order History</h4>
-          <p>You haven't placed any orders yet.</p>
+          <p>You haven not placed any orders yet.</p>
         </div>
       )}
     </div>
