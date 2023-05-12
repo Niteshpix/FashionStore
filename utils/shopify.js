@@ -23,9 +23,14 @@ export async function getProducts() {
               name
               values
             }
-            featuredImage {
-              originalSrc
+            images(first: 2) {
+              edges {
+                node {
+                  originalSrc
+                }
+              }
             }
+
             variants(first: 10) {
               edges {
                 node {

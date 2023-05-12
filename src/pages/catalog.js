@@ -5,11 +5,28 @@ import LoadingSpinner from "@/Components/Common/loader";
 import { useRouter } from "next/router";
 import { getProducts } from "../../utils/shopify";
 
-function Catalog({ data }) {
+function Catalog() {
   const [isLoading, setIsLoading] = useState(false);
   const [hovering, setHovering] = useState(false);
   const router = useRouter();
-  const products = data.products.edges;
+
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setIsLoading(true);
+        const data = await getProducts();
+        setProducts(data.products.edges);
+        setIsLoading(false);
+      } catch (error) {
+        console.log("Error fetching products:", error);
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   const handleRoutes = (product) => {
     router.push(`product/${product.node.handle}/?productid=${product.node.id}`);
@@ -30,9 +47,8 @@ function Catalog({ data }) {
         {products.map((prod) => {
           let options = prod?.node.options;
           const sizes = options.find((item) => item.name === "Size");
-          const originalImageUrl = prod.node.featuredImage.originalSrc;
-          const hoverImageUrl =
-            "https://cdn.shopify.com/s/files/1/0746/3229/8790/products/jw5.webp?v=1682923509";
+          const originalImageUrl = prod.node.images.edges[0].node.originalSrc;
+          const hoverImageUrl = prod.node.images.edges[1].node.originalSrc;
           return (
             <div
               key={prod.node.id}
@@ -78,10 +94,3 @@ function Catalog({ data }) {
 }
 
 export default Catalog;
-
-export const getServerSideProps = async () => {
-  const data = await getProducts();
-  return {
-    props: { data },
-  };
-};
