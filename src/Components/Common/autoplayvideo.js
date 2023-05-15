@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import styles from "../../styles/Home.module.css";
 import Banner from "./banner";
 import HomePageSlider from "./homepageslider";
+import Collections from "./collection";
 
 function Autoplayvideo() {
   const videoRef = useRef(null);
@@ -37,6 +38,7 @@ function Autoplayvideo() {
         </div>
       </div>
       <HomePageSlider />
+      <Collections />
       <Banner
         title={"The Signature Chain Pouch"}
         path="https://cdn.shopify.com/s/files/1/0746/4386/5884/files/product-image.webp?v=1681807200&width=750"

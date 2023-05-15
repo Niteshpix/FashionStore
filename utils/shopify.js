@@ -612,3 +612,65 @@ export async function deleteCustomerAddress(customerToken, addressId) {
     throw new Error(error);
   }
 }
+export async function getCollections() {
+  const getCollectionsQuery = gql`
+    query {
+      collections(first: 5) {
+        edges {
+          node {
+            id
+            title
+            handle
+            description
+            image {
+              originalSrc
+              transformedSrc(maxWidth: 200, maxHeight: 200)
+            }
+          }
+        }
+      }
+    }
+  `;
+  try {
+    return await graphQLClient.request(getCollectionsQuery);
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
+export async function getCollectionsById(collectionId) {
+  const getCollectionQuery = gql`
+    query ($collectionId: ID!) {
+      collection(id: $collectionId) {
+        id
+        title
+        handle
+        description
+        image {
+          originalSrc
+          transformedSrc(maxWidth: 200, maxHeight: 200)
+        }
+      }
+      products(first: 5, query: "collection_id:$collectionId") {
+        edges {
+          node {
+            id
+            title
+            handle
+            description
+            image {
+              originalSrc
+              transformedSrc(maxWidth: 200, maxHeight: 200)
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  try {
+    return await graphQLClient.request(getCollectionQuery, { collectionId });
+  } catch (error) {
+    throw new Error(error);
+  }
+}

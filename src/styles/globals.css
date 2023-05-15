@@ -139,3 +139,26 @@ button.back_btn {
   font-size: 25px;
   margin-bottom: 6px;
 }
+
+.image-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  padding: 20px;
+  color: rgb(177, 20, 20);
+}
+
+.image-info h4,
+.image-info p {
+  margin: 0;
+  cursor: pointer;
+  font-style: italic;
+}
+
+.image-info h4 {
+  font-size: 24px;
+}
+
+.image-info p {
+  font-size: 18px;
+}
