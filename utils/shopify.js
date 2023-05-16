@@ -646,6 +646,7 @@ export async function getCollectionById(collectionId) {
         title
         handle
         updatedAt
+        description
         products(first: 10) {
           edges {
             node {

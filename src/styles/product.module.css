@@ -42,3 +42,30 @@
 .image + .image + .image {
   margin-top: 15px;
 }
+
+/*action div */
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+}
+
+.column {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.label {
+  margin-right: 10px;
+}
+
+.select {
+  margin-right: 20px;
+  border-style: none;
+}
+
+.text-end {
+  text-align: end;
+}
+

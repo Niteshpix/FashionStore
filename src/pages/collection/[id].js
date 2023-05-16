@@ -11,6 +11,7 @@ function Collections() {
   const [collections, setCollections] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hoveringId, setHoveringId] = useState(null);
+  let totalcollection = collections?.products?.edges?.length;
 
   const handleHover = (productId) => {
     setHoveringId(productId);
@@ -35,12 +36,51 @@ function Collections() {
       fetchData();
     }
   }, [id]);
+  const collactiontitle =
+    collections?.title?.charAt(0).toUpperCase() + collections?.title?.slice(1);
 
   return isLoading ? (
     <LoadingSpinner />
   ) : (
     <div className={styles.product}>
-      <h2>Collections</h2>
+      <h2>{collactiontitle.toString()}</h2>
+      <p>{collections.description}</p>
+
+      <div className={`row ${styles.container}`}>
+        <div className={`col-6 ${styles.column1}`}>
+          <label htmlFor="availability" className={styles.label}>
+            Filter
+          </label>
+          <select id="availability" className={styles.select}>
+            <option value="all">Availability</option>
+            <option value="inStock">In Stock</option>
+            <option value="outOfStock">Out of Stock</option>
+          </select>
+
+          <label htmlFor="price" className={styles.label}>
+            Price
+          </label>
+          <select id="price" className={styles.select}>
+            <option value="all">All</option>
+            <option value="low">Low to High</option>
+            <option value="high">High to Low</option>
+          </select>
+        </div>
+        <div className={`col-6  ${styles.column}`}>
+          <label htmlFor="sort" className={styles.label}>
+            Sort by:
+          </label>
+          <select id="sort" className={styles.select}>
+            <option value="bestSelling">Best Selling</option>
+            <option value="newest">Newest</option>
+            <option value="topRated">Top Rated</option>
+          </select>
+          <label htmlFor="price" className={styles.label}>
+            {totalcollection} Product
+          </label>
+        </div>
+      </div>
+
       <Row
         xs={1}
         md={4}
