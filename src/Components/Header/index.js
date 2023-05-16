@@ -2,14 +2,11 @@ import React, { useContext, useEffect, useState } from "react";
 import { Nav, Navbar } from "react-bootstrap";
 import styles from "../../styles/Home.module.css";
 import { BsSearch } from "react-icons/bs";
-import {
-  HiOutlineShoppingBag,
-  HiOutlineUser,
-} from "react-icons/hi";
+import { HiOutlineShoppingBag, HiOutlineUser } from "react-icons/hi";
 import Link from "next/link";
 import { CartContext } from "../AppContext";
 import { useRouter } from "next/router";
-import { updateProductQuantity } from "../../../utils/shopify";
+import { getCollections, updateProductQuantity } from "../../../utils/shopify";
 import formatPrice from "../../../utils/helpers";
 
 function Header() {
@@ -20,10 +17,25 @@ function Header() {
   let lines = cartItems?.lines?.edges;
   let checkout_Url = checkoutUrl?.cart?.checkoutUrl;
   const [token, setToken] = useState(false);
+  const [collections, setCollections] = useState([]);
+
   useEffect(() => {
     const token = sessionStorage.getItem("token");
     setToken(token !== null);
   }, [token]);
+
+  useEffect(() => {
+    const fetchCollections = async () => {
+      try {
+        const response = await getCollections();
+        setCollections(response.collections.edges);
+      } catch (error) {
+        console.error("Error fetching collections:", error);
+      }
+    };
+
+    fetchCollections();
+  }, []);
 
   const subTotalPrice = lines?.reduce((total, line) => {
     const price = parseFloat(line.node.merchandise.price.amount);
@@ -148,9 +160,22 @@ function Header() {
           <Nav.Link as={Link} href="/" passHref active>
             Home
           </Nav.Link>
-          <Nav.Link as={Link} href="/catalog" passHref>
-            Catalog
-          </Nav.Link>
+          {collections.map((menu, idx) => {
+            const fomatedMenu =
+              menu.node.title.charAt(0).toUpperCase() +
+              menu.node.title.slice(1);
+            let extractedId = menu.node.id.split("/").pop();
+            return (
+              <Nav.Link
+                key={idx}
+                as={Link}
+                href={`/collection/${extractedId}`}
+                passHref
+              >
+                {fomatedMenu}
+              </Nav.Link>
+            );
+          })}
         </Nav>
         <Navbar.Toggle />
         <Navbar.Collapse className="justify-content-end">

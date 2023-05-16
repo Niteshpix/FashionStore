@@ -638,29 +638,51 @@ export async function getCollections() {
   }
 }
 
-export async function getCollectionsById(collectionId) {
+export async function getCollectionById(collectionId) {
   const getCollectionQuery = gql`
-    query ($collectionId: ID!) {
+    query GetCollection($collectionId: ID!) {
       collection(id: $collectionId) {
         id
         title
         handle
-        description
-        image {
-          originalSrc
-          transformedSrc(maxWidth: 200, maxHeight: 200)
-        }
-      }
-      products(first: 5, query: "collection_id:$collectionId") {
-        edges {
-          node {
-            id
-            title
-            handle
-            description
-            image {
-              originalSrc
-              transformedSrc(maxWidth: 200, maxHeight: 200)
+        updatedAt
+        products(first: 10) {
+          edges {
+            node {
+              id
+              title
+              handle
+              options {
+                name
+                values
+              }
+              images(first: 2) {
+                edges {
+                  node {
+                    originalSrc
+                  }
+                }
+              }
+
+              variants(first: 10) {
+                edges {
+                  node {
+                    id
+                    title
+                    price {
+                      amount
+                      currencyCode
+                    }
+                    selectedOptions {
+                      name
+                      value
+                    }
+                    image {
+                      originalSrc
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -669,7 +691,12 @@ export async function getCollectionsById(collectionId) {
   `;
 
   try {
-    return await graphQLClient.request(getCollectionQuery, { collectionId });
+    const variables = {
+      collectionId: `gid://shopify/Collection/${collectionId}`,
+    };
+
+    const result = await graphQLClient.request(getCollectionQuery, variables);
+    return result.collection;
   } catch (error) {
     throw new Error(error);
   }
