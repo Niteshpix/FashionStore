@@ -6,7 +6,11 @@ import { HiOutlineShoppingBag, HiOutlineUser } from "react-icons/hi";
 import Link from "next/link";
 import { CartContext } from "../AppContext";
 import { useRouter } from "next/router";
-import { getCollections, updateProductQuantity } from "../../../utils/shopify";
+import {
+  getCollections,
+  getNavigationMenus,
+  updateProductQuantity,
+} from "../../../utils/shopify";
 import formatPrice from "../../../utils/helpers";
 
 function Header() {
@@ -29,6 +33,9 @@ function Header() {
       try {
         const response = await getCollections();
         setCollections(response.collections.edges);
+        const navigationMenusResponse = await getNavigationMenus();
+
+        // console.log(navigationMenusResponse);
       } catch (error) {
         console.error("Error fetching collections:", error);
       }
@@ -281,6 +288,19 @@ function Header() {
                 >
                   CHECK OUT
                 </button>
+              )}
+              {lines?.length == 0 || lines === undefined ? (
+                ""
+              ) : (
+                <Link href={"/checkout"}>
+                  <button
+                    className={"checkoutbtn"}
+                    type="submit"
+                    style={{ marginTop: "5px" }}
+                  >
+                    CHECK OUT
+                  </button>
+                </Link>
               )}
             </div>
           </div>

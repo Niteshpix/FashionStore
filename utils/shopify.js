@@ -232,6 +232,7 @@ export const getCheckoutUrl = async (cartId) => {
   const getCheckoutUrlQuery = gql`
     query checkoutURL($cartId: ID!) {
       cart(id: $cartId) {
+        id
         checkoutUrl
       }
     }
@@ -698,6 +699,28 @@ export async function getCollectionById(collectionId) {
 
     const result = await graphQLClient.request(getCollectionQuery, variables);
     return result.collection;
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+export async function getNavigationMenus() {
+  const getNavigationMenusQuery = gql`
+    query {
+      menu(handle: "main-menu") {
+        id
+        handle
+        title
+        items {
+          id
+          title
+          url
+        }
+      }
+    }
+  `;
+
+  try {
+    return await graphQLClient.request(getNavigationMenusQuery);
   } catch (error) {
     throw new Error(error);
   }

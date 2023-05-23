@@ -6,13 +6,15 @@ import formatPrice from "../../utils/helpers";
 
 function Checkout() {
   const [isLoading, setIsLoading] = useState(false);
-  const { cartItems } = useContext(CartContext);
+  const { cartItems, checkoutUrl } = useContext(CartContext);
   const [subTotalPrice, setSubTotalPrice] = useState(0);
-  let url = cartItems[0]?.url;
+  let checkout_Url = checkoutUrl?.cart?.checkoutUrl;
+  let lines = cartItems?.lines?.edges;
+
   useEffect(() => {
-    const totalPrice = cartItems.reduce((acc, item) => {
-      const price = item.product.variants[0].price;
-      return acc + price * item.quantity;
+    const totalPrice = lines?.reduce((total, line) => {
+      const price = parseFloat(line.node.merchandise.price.amount);
+      return total + price * line.node.quantity;
     }, 0);
     setSubTotalPrice(totalPrice);
   }, [cartItems]);
@@ -42,35 +44,37 @@ function Checkout() {
               </tr>
             </thead>
             <tbody>
-              {cartItems.map((item, i) => (
-                <tr key={i}>
-                  <td>
-                    <div className="row">
-                      <div className="col-3">
-                        <img
-                          src={item.product.image.src}
-                          alt="image"
-                          style={{ height: "150px", width: "100px" }}
-                        />
+              {lines &&
+                lines.map((item, i) => (
+                  <tr key={i}>
+                    <td>
+                      <div className="row">
+                        <div className="col-3">
+                          <img
+                            src={item.node.merchandise.image.originalSrc}
+                            alt="image"
+                            style={{ height: "150px", width: "100px" }}
+                          />
+                        </div>
+                        <div className="col-6">
+                          <p>{item.node.merchandise.product.handle}</p>
+                          <p>Size: {item.node.merchandise.title}</p>
+                        </div>
                       </div>
-                      <div className="col-6">
-                        <p>{item.product.title}</p>
-                        <p>Size: {item.selectedsize}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td>{item.quantity}</td>
+                    </td>
+                    <td>{item.node.quantity}</td>
 
-                  {item.product.variants.slice(0, 1).map((variant, i) => {
-                    return (
-                      <React.Fragment key={i}>
-                        <td>{formatPrice(variant.price)}</td>
-                        <td>{formatPrice(variant.price * item.quantity)}</td>
-                      </React.Fragment>
-                    );
-                  })}
-                </tr>
-              ))}
+                    <React.Fragment key={i}>
+                      <td>{formatPrice(item.node.merchandise.price.amount)}</td>
+                      <td>
+                        {formatPrice(
+                          item.node.merchandise.price.amount *
+                            item.node.quantity
+                        )}
+                      </td>
+                    </React.Fragment>
+                  </tr>
+                ))}
 
               <tr>
                 <td colSpan="3">Items Total:</td>
@@ -79,7 +83,7 @@ function Checkout() {
             </tbody>
           </Table>
           <iframe
-            src={url}
+            src={checkout_Url}
             title="fashionstroe"
             width="100%"
             height="500px"
